@@ -53,6 +53,23 @@ export default async function Home() {
           ))}
         </div>
 
+        <p className="text-[11px] uppercase tracking-widest text-[#6B7E82] mb-2 mt-6">
+          Strumenti — aperti a tutti
+        </p>
+
+        <Link
+          href="/maree"
+          className="bg-white border border-[#E1DFD6] rounded-xl p-3.5 flex items-center gap-3 mb-3"
+        >
+          <div className="w-9 h-9 rounded-lg bg-[#F6F5F1] flex items-center justify-center text-lg flex-shrink-0">
+            🌊
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm">Maree e luna</h3>
+            <p className="text-xs text-[#6B7E82]">Qualunque località, dati di oggi</p>
+          </div>
+        </Link>
+
         <div className="mt-6 p-3 border border-dashed border-[#E1DFD6] rounded-xl text-xs text-[#6B7E82] leading-relaxed">
           🔧 Per testare: apri{" "}
           <code className="bg-[#eeece3] px-1 rounded">
