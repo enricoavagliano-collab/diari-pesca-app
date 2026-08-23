@@ -18,6 +18,18 @@ CREATE TABLE IF NOT EXISTS diario_entries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS lenze_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  device_id TEXT NOT NULL,
+  category TEXT NOT NULL,
+  title TEXT NOT NULL,
+  data JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_lenze_device_category
+  ON lenze_entries (device_id, category);
+
 CREATE INDEX IF NOT EXISTS idx_diario_book_device
   ON diario_entries (book_id, device_id);
 
