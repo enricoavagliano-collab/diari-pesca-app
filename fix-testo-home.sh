@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo la descrizione in home...'
+cat > "app/page.tsx" << 'SETUP_EOF_MARKER'
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { BOOKS } from "@/lib/books";
@@ -82,3 +86,5 @@ export default async function Home() {
   );
 }
 
+SETUP_EOF_MARKER
+echo '✓ Fatto.'
