@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo app/globals.css...'
+cat > "app/globals.css" << 'SETUP_EOF_MARKER'
 @import "tailwindcss";
 
 /* Colori fissi del brand: l'app ha sempre lo stesso aspetto,
@@ -27,3 +31,5 @@ input::placeholder,
 textarea::placeholder {
   color: #6B7E82;
 }
+SETUP_EOF_MARKER
+echo '✓ Corretto: il testo ora è sempre leggibile, anche in modalità scura.'
