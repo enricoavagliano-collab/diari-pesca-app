@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
   const lat = parseFloat(req.nextUrl.searchParams.get("lat") || "");
   const lon = parseFloat(req.nextUrl.searchParams.get("lon") || "");
   const timezone = req.nextUrl.searchParams.get("tz") || "Europe/Rome";
+  const dateParam = req.nextUrl.searchParams.get("date"); // YYYY-MM-DD, opzionale
 
   if (isNaN(lat) || isNaN(lon)) {
     return NextResponse.json(
@@ -14,11 +15,17 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const targetDate =
+    dateParam || new Date().toLocaleDateString("sv-SE", { timeZone: timezone });
+
+  // Per la luna serve un oggetto Date reale: costruisco mezzogiorno locale del giorno scelto
+  const moonDate = new Date(`${targetDate}T12:00:00`);
+
   const [tides, moon] = await Promise.all([
-    getTideForecast(lat, lon),
-    Promise.resolve(getMoonData(lat, lon, new Date(), timezone)),
+    getTideForecast(lat, lon, targetDate),
+    Promise.resolve(getMoonData(lat, lon, moonDate, timezone)),
   ]);
 
-  return NextResponse.json({ ok: true, tides, moon });
+  return NextResponse.json({ ok: true, tides, moon, date: targetDate });
 }
 

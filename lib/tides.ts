@@ -12,14 +12,15 @@ export interface TideForecast {
 
 export async function getTideForecast(
   lat: number,
-  lon: number
+  lon: number,
+  targetDate: string // YYYY-MM-DD, nel timezone locale della località
 ): Promise<TideForecast | null> {
   const url = new URL("https://marine-api.open-meteo.com/v1/marine");
   url.searchParams.set("latitude", lat.toString());
   url.searchParams.set("longitude", lon.toString());
   url.searchParams.set("hourly", "sea_level_height_msl");
   url.searchParams.set("timezone", "auto");
-  url.searchParams.set("forecast_days", "1");
+  url.searchParams.set("forecast_days", "7");
   url.searchParams.set("past_days", "1"); // serve un'ora prima per rilevare un picco a mezzanotte
 
   const res = await fetch(url.toString());
@@ -32,9 +33,6 @@ export async function getTideForecast(
 
   if (times.length === 0 || heights.every((h) => h === null)) return null;
 
-  // Isola solo le ore di "oggi" (il timezone locale, non UTC)
-  const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: timezone }); // YYYY-MM-DD
-
   const series = times
     .map((t, i) => ({ time: t, height: heights[i] }))
     .filter((p): p is { time: string; height: number } => p.height !== null);
@@ -45,8 +43,8 @@ export async function getTideForecast(
     const prev = series[i - 1].height;
     const curr = series[i].height;
     const next = series[i + 1].height;
-    const isDay = series[i].time.startsWith(todayStr);
-    if (!isDay) continue;
+    const isTargetDay = series[i].time.startsWith(targetDate);
+    if (!isTargetDay) continue;
 
     if (curr > prev && curr > next) {
       extremes.push({
@@ -64,7 +62,7 @@ export async function getTideForecast(
   }
 
   const hourlySeries = series
-    .filter((p) => p.time.startsWith(todayStr))
+    .filter((p) => p.time.startsWith(targetDate))
     .map((p) => ({ time: formatLocalTime(p.time), height: p.height }));
 
   return { today: extremes, hourlySeries, timezone };

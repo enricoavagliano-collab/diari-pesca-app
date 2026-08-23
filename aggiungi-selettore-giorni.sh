@@ -1,3 +1,118 @@
+#!/bin/bash
+set -e
+echo 'Aggiungo il selettore giorni a Maree e luna...'
+cat > "lib/tides.ts" << 'SETUP_EOF_MARKER'
+export interface TideExtreme {
+  time: string; // HH:mm locale
+  type: "alta" | "bassa";
+  height: number; // metri, relativo al livello medio del mare (non è un datum di navigazione)
+}
+
+export interface TideForecast {
+  today: TideExtreme[];
+  hourlySeries: { time: string; height: number }[]; // per disegnare il grafico
+  timezone: string;
+}
+
+export async function getTideForecast(
+  lat: number,
+  lon: number,
+  targetDate: string // YYYY-MM-DD, nel timezone locale della località
+): Promise<TideForecast | null> {
+  const url = new URL("https://marine-api.open-meteo.com/v1/marine");
+  url.searchParams.set("latitude", lat.toString());
+  url.searchParams.set("longitude", lon.toString());
+  url.searchParams.set("hourly", "sea_level_height_msl");
+  url.searchParams.set("timezone", "auto");
+  url.searchParams.set("forecast_days", "7");
+  url.searchParams.set("past_days", "1"); // serve un'ora prima per rilevare un picco a mezzanotte
+
+  const res = await fetch(url.toString());
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const times: string[] = data?.hourly?.time || [];
+  const heights: (number | null)[] = data?.hourly?.sea_level_height_msl || [];
+  const timezone: string = data?.timezone || "UTC";
+
+  if (times.length === 0 || heights.every((h) => h === null)) return null;
+
+  const series = times
+    .map((t, i) => ({ time: t, height: heights[i] }))
+    .filter((p): p is { time: string; height: number } => p.height !== null);
+
+  // Trova i picchi locali (massimi e minimi) confrontando ogni punto con i vicini
+  const extremes: TideExtreme[] = [];
+  for (let i = 1; i < series.length - 1; i++) {
+    const prev = series[i - 1].height;
+    const curr = series[i].height;
+    const next = series[i + 1].height;
+    const isTargetDay = series[i].time.startsWith(targetDate);
+    if (!isTargetDay) continue;
+
+    if (curr > prev && curr > next) {
+      extremes.push({
+        time: formatLocalTime(series[i].time),
+        type: "alta",
+        height: Math.round(curr * 100) / 100,
+      });
+    } else if (curr < prev && curr < next) {
+      extremes.push({
+        time: formatLocalTime(series[i].time),
+        type: "bassa",
+        height: Math.round(curr * 100) / 100,
+      });
+    }
+  }
+
+  const hourlySeries = series
+    .filter((p) => p.time.startsWith(targetDate))
+    .map((p) => ({ time: formatLocalTime(p.time), height: p.height }));
+
+  return { today: extremes, hourlySeries, timezone };
+}
+
+function formatLocalTime(isoLike: string): string {
+  // Open-Meteo con timezone=auto restituisce già l'ora locale, es. "2026-08-23T14:00"
+  const match = isoLike.match(/T(\d{2}:\d{2})/);
+  return match ? match[1] : isoLike;
+}
+
+SETUP_EOF_MARKER
+cat > "app/api/maree/route.ts" << 'SETUP_EOF_MARKER'
+import { NextRequest, NextResponse } from "next/server";
+import { getTideForecast } from "@/lib/tides";
+import { getMoonData } from "@/lib/moon";
+
+export async function GET(req: NextRequest) {
+  const lat = parseFloat(req.nextUrl.searchParams.get("lat") || "");
+  const lon = parseFloat(req.nextUrl.searchParams.get("lon") || "");
+  const timezone = req.nextUrl.searchParams.get("tz") || "Europe/Rome";
+  const dateParam = req.nextUrl.searchParams.get("date"); // YYYY-MM-DD, opzionale
+
+  if (isNaN(lat) || isNaN(lon)) {
+    return NextResponse.json(
+      { ok: false, error: "Coordinate mancanti o non valide." },
+      { status: 400 }
+    );
+  }
+
+  const targetDate =
+    dateParam || new Date().toLocaleDateString("sv-SE", { timeZone: timezone });
+
+  // Per la luna serve un oggetto Date reale: costruisco mezzogiorno locale del giorno scelto
+  const moonDate = new Date(`${targetDate}T12:00:00`);
+
+  const [tides, moon] = await Promise.all([
+    getTideForecast(lat, lon, targetDate),
+    Promise.resolve(getMoonData(lat, lon, moonDate, timezone)),
+  ]);
+
+  return NextResponse.json({ ok: true, tides, moon, date: targetDate });
+}
+
+SETUP_EOF_MARKER
+cat > "app/maree/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -292,3 +407,5 @@ export default function MareePage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo '✓ Ora puoi scegliere il giorno da consultare (oggi + 5 giorni).'
