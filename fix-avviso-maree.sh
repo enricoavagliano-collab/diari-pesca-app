@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo app/maree/page.tsx...'
+cat > "app/maree/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -243,3 +247,5 @@ export default function MareePage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo '✓ Avviso aggiunto sotto la card marea.'
