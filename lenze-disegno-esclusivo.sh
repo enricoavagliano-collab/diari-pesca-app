@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Aggiungo il doppio livello di sblocco: dati vs disegno esclusivo...'
+cat > "app/lenze/LenzeClient.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -395,3 +399,5 @@ export default function LenzeClient({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: il disegno del montaggio si sblocca SOLO con Il senso dell acqua, non basta Mare e Foce."
