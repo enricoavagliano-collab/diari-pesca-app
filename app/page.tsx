@@ -83,13 +83,12 @@ export default async function Home() {
           </div>
         </Link>
 
-        <div className="mt-6 p-3 border border-dashed border-[#E1DFD6] rounded-xl text-xs text-[#6B7E82] leading-relaxed">
-          🔧 Per testare: apri{" "}
-          <code className="bg-[#eeece3] px-1 rounded">
-            /sblocca?codice=FEEDER-2026-DEMO
-          </code>{" "}
-          per simulare la scansione del QR del Diario Feeder.
-        </div>
+        <Link
+          href="/sblocca"
+          className="mt-6 flex items-center justify-center gap-2 border border-dashed border-[#E1DFD6] rounded-xl py-3 text-sm text-[#2C6E71] font-medium"
+        >
+          🔑 Hai un codice? Sbloccalo qui
+        </Link>
       </div>
     </main>
   );
