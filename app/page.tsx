@@ -79,7 +79,7 @@ export default async function Home() {
           </div>
           <div>
             <h3 className="font-semibold text-sm">Le mie lenze</h3>
-            <p className="text-xs text-[#6B7E82]">Configurazioni bolognese, le tue e quelle salvate</p>
+            <p className="text-xs text-[#6B7E82]">Con Mare e Foce o Diario Feeder</p>
           </div>
         </Link>
 
