@@ -1,3 +1,8 @@
+#!/bin/bash
+set -e
+echo 'Aggiorno la regola: Il senso dell acqua sblocca anche le lenze mare...'
+mkdir -p "app/lenze"
+cat > "app/lenze/LenzeClient.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -378,3 +383,25 @@ export default function LenzeClient({
   );
 }
 
+SETUP_EOF_MARKER
+cat > "app/lenze/page.tsx" << 'SETUP_EOF_MARKER'
+import { cookies } from "next/headers";
+import LenzeClient from "./LenzeClient";
+
+export default async function LenzePage() {
+  const cookieStore = await cookies();
+  const unlockedMare = cookieStore.get("unlock_mare-e-foce")?.value === "1";
+  const unlockedFeeder = cookieStore.get("unlock_feeder")?.value === "1";
+  const unlockedSensoAcqua = cookieStore.get("unlock_senso-acqua")?.value === "1";
+
+  return (
+    <LenzeClient
+      unlockedMare={unlockedMare}
+      unlockedFeeder={unlockedFeeder}
+      unlockedSensoAcqua={unlockedSensoAcqua}
+    />
+  );
+}
+
+SETUP_EOF_MARKER
+echo "Fatto: Mare e Foce OPPURE Il senso dell acqua sbloccano le lenze mare; solo Feeder sblocca gli assetti feeder."

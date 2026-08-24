@@ -5,7 +5,14 @@ export default async function LenzePage() {
   const cookieStore = await cookies();
   const unlockedMare = cookieStore.get("unlock_mare-e-foce")?.value === "1";
   const unlockedFeeder = cookieStore.get("unlock_feeder")?.value === "1";
+  const unlockedSensoAcqua = cookieStore.get("unlock_senso-acqua")?.value === "1";
 
-  return <LenzeClient unlockedMare={unlockedMare} unlockedFeeder={unlockedFeeder} />;
+  return (
+    <LenzeClient
+      unlockedMare={unlockedMare}
+      unlockedFeeder={unlockedFeeder}
+      unlockedSensoAcqua={unlockedSensoAcqua}
+    />
+  );
 }
 
