@@ -1,3 +1,8 @@
+#!/bin/bash
+set -e
+echo 'Aggiungo la possibilita di eliminare una localita salvata...'
+mkdir -p "app/maree"
+cat > "app/maree/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -309,3 +314,5 @@ export default function MareePage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: ogni localita salvata ha ora una x per rimuoverla."
