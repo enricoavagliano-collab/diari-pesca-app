@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Tolgo il codice demo dal placeholder del campo sblocco...'
+cat > "app/sblocca/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { Suspense, useEffect, useState, useCallback } from "react";
@@ -117,3 +121,5 @@ export default function SbloccaPage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto."
