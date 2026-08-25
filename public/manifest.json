@@ -1,6 +1,6 @@
 {
-  "name": "Diari di Pesca",
-  "short_name": "Diari di Pesca",
+  "name": "Libri di Pesca",
+  "short_name": "Libri di Pesca",
   "description": "Companion app per i libri di Enrico Avagliano — diario digitale, maree, luna, lenze.",
   "start_url": "/",
   "display": "standalone",

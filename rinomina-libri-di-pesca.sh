@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+echo 'Rinomino app: Diari di Pesca -> Libri di Pesca...'
+mkdir -p "app"
+mkdir -p "public"
+cat > "app/page.tsx" << 'SETUP_EOF_MARKER'
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { BOOKS } from "@/lib/books";
@@ -135,3 +141,76 @@ export default async function Home() {
   );
 }
 
+SETUP_EOF_MARKER
+cat > "app/layout.tsx" << 'SETUP_EOF_MARKER'
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Libri di Pesca",
+  description: "Companion app per i libri di Enrico Avagliano",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Libri di Pesca",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0F2D3D",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang="it" className="h-full antialiased">
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}
+
+SETUP_EOF_MARKER
+cat > "public/manifest.json" << 'SETUP_EOF_MARKER'
+{
+  "name": "Libri di Pesca",
+  "short_name": "Libri di Pesca",
+  "description": "Companion app per i libri di Enrico Avagliano — diario digitale, maree, luna, lenze.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F5F1",
+  "theme_color": "#0F2D3D",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
+
+SETUP_EOF_MARKER
+echo "Fatto: nome aggiornato in home, titolo scheda browser, e nome app installata."

@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Diari di Pesca",
+  title: "Libri di Pesca",
   description: "Companion app per i libri di Enrico Avagliano",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Diari di Pesca",
+    title: "Libri di Pesca",
   },
   icons: {
     icon: [
