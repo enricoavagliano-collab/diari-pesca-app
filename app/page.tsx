@@ -98,6 +98,19 @@ export default async function Home() {
         </Link>
 
         <Link
+          href="/specie"
+          className="bg-white border border-[#E1DFD6] rounded-xl p-3.5 flex items-center gap-3 mb-3"
+        >
+          <div className="w-9 h-9 rounded-lg bg-[#F6F5F1] flex items-center justify-center text-lg flex-shrink-0">
+            🐟
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm">Specie e periodi</h3>
+            <p className="text-xs text-[#6B7E82]">Mare/Foce e Acqua dolce, mese per mese</p>
+          </div>
+        </Link>
+
+        <Link
           href="/sblocca"
           className="mt-6 flex items-center justify-center gap-2 border border-dashed border-[#E1DFD6] rounded-xl py-3 text-sm text-[#2C6E71] font-medium"
         >
