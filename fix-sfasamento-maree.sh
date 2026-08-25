@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo lo sfasamento maree: array intero senza compattare i buchi...'
+cat > "lib/tides.ts" << 'SETUP_EOF_MARKER'
 export interface TideExtreme {
   time: string; // HH:mm locale
   type: "alta" | "bassa";
@@ -143,3 +147,5 @@ export async function getTideForecast(
   return { today: deduped, hourlySeries, timezone };
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: gli orari di marea non si sfasano piu con la distanza dal dato reale rilevato."
