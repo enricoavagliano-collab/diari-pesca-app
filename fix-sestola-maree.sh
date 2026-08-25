@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo il controllo localita costiere: verifica vera con endpoint stations...'
+cat > "lib/tides.ts" << 'SETUP_EOF_MARKER'
 export interface TideExtreme {
   time: string; // HH:mm locale
   type: "alta" | "bassa";
@@ -82,3 +86,5 @@ export async function getWeekTides(lat: number, lon: number): Promise<WeekTideFo
   return { events, timezone };
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: Sestola e altre localita di montagna ora mostrano l avviso invece della marea."
