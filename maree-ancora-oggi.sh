@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Riscrivo il calcolo maree: ancora su oggi + spostamento 50min/giorno...'
+cat > "lib/tides.ts" << 'SETUP_EOF_MARKER'
 export interface TideExtreme {
   time: string; // HH:mm locale
   type: "alta" | "bassa";
@@ -164,3 +168,5 @@ export async function getTideForecast(
   return { today: finalEvents, hourlySeries, timezone };
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: le maree ora si spostano di ~50 minuti al giorno, in modo fluido e coerente, ancorate al dato reale di oggi."
