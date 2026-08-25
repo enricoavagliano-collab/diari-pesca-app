@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo la ricerca: gestisce singolare/plurale italiano (spigola/spigole)...'
+cat > "app/articoli/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useState } from "react";
@@ -117,3 +121,5 @@ export default function ArticoliPage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: spigola trova spigole, lenza trova lenze, ecc."
