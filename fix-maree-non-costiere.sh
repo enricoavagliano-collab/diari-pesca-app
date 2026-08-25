@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Aggiungo il limite di distanza stazione: niente maree per localita non costiere...'
+cat > "lib/tides.ts" << 'SETUP_EOF_MARKER'
 export interface TideExtreme {
   time: string; // HH:mm locale
   type: "alta" | "bassa";
@@ -71,3 +75,35 @@ export async function getWeekTides(lat: number, lon: number): Promise<WeekTideFo
   return { events, timezone };
 }
 
+SETUP_EOF_MARKER
+cat > "app/api/maree/tides/route.ts" << 'SETUP_EOF_MARKER'
+import { NextRequest, NextResponse } from "next/server";
+import { getWeekTides } from "@/lib/tides";
+
+export async function GET(req: NextRequest) {
+  const lat = parseFloat(req.nextUrl.searchParams.get("lat") || "");
+  const lon = parseFloat(req.nextUrl.searchParams.get("lon") || "");
+
+  if (isNaN(lat) || isNaN(lon)) {
+    return NextResponse.json({ ok: false, error: "Coordinate mancanti o non valide." }, { status: 400 });
+  }
+
+  try {
+    const forecast = await getWeekTides(lat, lon);
+    if (!forecast) {
+      return NextResponse.json({
+        ok: false,
+        error: "Nessuna stazione di marea nelle vicinanze — questa sezione funziona solo per località costiere.",
+      });
+    }
+    return NextResponse.json({ ok: true, ...forecast });
+  } catch (err) {
+    return NextResponse.json(
+      { ok: false, error: err instanceof Error ? err.message : "Errore nel recupero maree." },
+      { status: 500 }
+    );
+  }
+}
+
+SETUP_EOF_MARKER
+echo "Fatto: localita a piu di 50km dal mare mostrano un avviso invece di dati inventati."

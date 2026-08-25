@@ -12,7 +12,10 @@ export async function GET(req: NextRequest) {
   try {
     const forecast = await getWeekTides(lat, lon);
     if (!forecast) {
-      return NextResponse.json({ ok: false, error: "Maree non disponibili per questa località." });
+      return NextResponse.json({
+        ok: false,
+        error: "Nessuna stazione di marea nelle vicinanze — questa sezione funziona solo per località costiere.",
+      });
     }
     return NextResponse.json({ ok: true, ...forecast });
   } catch (err) {
