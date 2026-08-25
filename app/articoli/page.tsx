@@ -45,7 +45,7 @@ export default function ArticoliPage() {
         <Link href="/" className="text-xs text-[#6B7E82]">
           ← Home
         </Link>
-        <h1 className="text-xl font-medium mt-2 mb-1" style={{ fontFamily: "Georgia, serif" }}>
+        <h1 className="text-xl font-medium mt-2 mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
           Articoli
         </h1>
         <p className="text-xs text-[#6B7E82] mb-4">{ARTICOLI.length} articoli dal blog</p>
@@ -105,7 +105,7 @@ export default function ArticoliPage() {
                 </span>
                 <span className="text-[#6B7E82] text-sm flex-shrink-0">↗</span>
               </div>
-              <h3 className="text-[14px] leading-snug" style={{ fontFamily: "Georgia, serif" }}>
+              <h3 className="text-[14px] leading-snug" style={{ fontFamily: "var(--font-fraunces)" }}>
                 {a.title}
               </h3>
               <p className="text-[11px] text-[#6B7E82] mt-1.5">Leggi sul blog</p>

@@ -129,7 +129,7 @@ export default function MeteoPage() {
         <Link href="/" className="text-xs text-[#6B7E82]">
           ← Home
         </Link>
-        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "Georgia, serif" }}>
+        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
           Meteo
         </h1>
 
@@ -227,7 +227,7 @@ export default function MeteoPage() {
             <div className="text-[11px] uppercase tracking-widest text-[#D98E4A] mb-1">
               {selected.name}
             </div>
-            <h2 className="text-[19px] font-medium mb-4" style={{ fontFamily: "Georgia, serif" }}>
+            <h2 className="text-[19px] font-medium mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
               {nextDays(6).find((d) => d.iso === selectedDate)?.label || "Oggi"}
             </h2>
 

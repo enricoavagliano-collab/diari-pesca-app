@@ -60,7 +60,7 @@ export default async function DiarioBookPage({
         <Link href="/" className="text-xs text-[#6B7E82]">
           ← Home
         </Link>
-        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "Georgia, serif" }}>
+        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
           {book.name}
         </h1>
 

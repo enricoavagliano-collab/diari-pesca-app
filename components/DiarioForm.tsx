@@ -76,7 +76,7 @@ export default function DiarioForm({
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <h2 className="font-medium text-lg" style={{ fontFamily: "Georgia, serif" }}>
+        <h2 className="font-medium text-lg" style={{ fontFamily: "var(--font-fraunces)" }}>
           Il tuo diario digitale
         </h2>
         <button

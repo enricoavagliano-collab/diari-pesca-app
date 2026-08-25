@@ -20,7 +20,7 @@ export default function SpeciePage() {
         <Link href="/" className="text-xs text-[#6B7E82]">
           ← Home
         </Link>
-        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "Georgia, serif" }}>
+        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
           Specie e periodi migliori
         </h1>
 
@@ -62,7 +62,7 @@ export default function SpeciePage() {
         <div className="space-y-4">
           {specieList.map((specie) => (
             <div key={specie.name} className="bg-white border border-[#E1DFD6] rounded-xl p-4">
-              <h3 className="font-medium text-[16px] mb-3" style={{ fontFamily: "Georgia, serif" }}>
+              <h3 className="font-medium text-[16px] mb-3" style={{ fontFamily: "var(--font-fraunces)" }}>
                 {specie.name}
               </h3>
               <div className="grid grid-cols-6 gap-1.5 mb-3">

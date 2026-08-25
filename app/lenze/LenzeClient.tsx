@@ -115,7 +115,7 @@ export default function LenzeClient({
         <Link href="/" className="text-xs text-[#6B7E82]">
           ← Home
         </Link>
-        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "Georgia, serif" }}>
+        <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
           Le mie lenze
         </h1>
 
@@ -214,7 +214,7 @@ export default function LenzeClient({
 
             {spec && (
               <div className="bg-white border border-[#E1DFD6] rounded-xl p-4">
-                <h3 className="font-medium text-[15px] mb-1" style={{ fontFamily: "Georgia, serif" }}>
+                <h3 className="font-medium text-[15px] mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
                   {TECNICHE.find((t) => t.id === tecnica)?.label} —{" "}
                   {TECNICA_VARIANTI[tecnica].find((v) => v.id === variante)?.label}
                 </h3>
@@ -272,7 +272,7 @@ export default function LenzeClient({
           <div className="space-y-3">
             {OFFICIAL_ASSETTI.map((a, i) => (
               <div key={i} className="bg-white border border-[#E1DFD6] rounded-xl p-4">
-                <h3 className="font-medium text-[15px] mb-1" style={{ fontFamily: "Georgia, serif" }}>
+                <h3 className="font-medium text-[15px] mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
                   {a.title}
                 </h3>
                 <p className="text-[11px] text-[#6B7E82] mb-3">di Enrico Avagliano</p>
@@ -362,7 +362,7 @@ export default function LenzeClient({
             {mine.map((entry) => (
               <div key={entry.id} className="bg-white border border-[#E1DFD6] rounded-xl p-4">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium text-[15px]" style={{ fontFamily: "Georgia, serif" }}>
+                  <h3 className="font-medium text-[15px]" style={{ fontFamily: "var(--font-fraunces)" }}>
                     {entry.title}
                   </h3>
                   <button
