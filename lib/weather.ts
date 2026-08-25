@@ -1,13 +1,17 @@
-export interface DayWeather {
-  date: string; // YYYY-MM-DD
-  tempMax: number;
-  tempMin: number;
+export interface HourSlot {
+  time: string; // HH:mm
+  tempC: number;
   windSpeed: number; // km/h
-  windDirection: number; // gradi (0-360)
+  windDirection: number; // gradi
   pressure: number; // hPa
   weatherCode: number;
   description: string;
   icon: string;
+}
+
+export interface DayWeather {
+  date: string; // YYYY-MM-DD
+  slots: HourSlot[]; // ogni 2 ore, dalle 00:00 alle 22:00
 }
 
 export interface WeekWeatherForecast {
@@ -15,7 +19,6 @@ export interface WeekWeatherForecast {
   timezone: string;
 }
 
-// Codici meteo WMO usati da Open-Meteo, tradotti in italiano
 const WEATHER_CODES: Record<number, { description: string; icon: string }> = {
   0: { description: "Sereno", icon: "☀️" },
   1: { description: "Prevalentemente sereno", icon: "🌤️" },
@@ -48,8 +51,10 @@ export async function getWeekWeather(lat: number, lon: number): Promise<WeekWeat
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude", lat.toString());
   url.searchParams.set("longitude", lon.toString());
-  url.searchParams.set("daily", "weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max,winddirection_10m_dominant");
-  url.searchParams.set("hourly", "surface_pressure");
+  url.searchParams.set(
+    "hourly",
+    "temperature_2m,windspeed_10m,winddirection_10m,surface_pressure,weathercode"
+  );
   url.searchParams.set("timezone", "auto");
   url.searchParams.set("forecast_days", "7");
 
@@ -57,40 +62,47 @@ export async function getWeekWeather(lat: number, lon: number): Promise<WeekWeat
   if (!res.ok) return null;
 
   const data = await res.json();
-  const dailyTimes: string[] = data?.daily?.time || [];
-  if (dailyTimes.length === 0) return null;
+  const times: string[] = data?.hourly?.time || [];
+  if (times.length === 0) return null;
 
   const timezone: string = data?.timezone || "UTC";
-  const hourlyTimes: string[] = data?.hourly?.time || [];
-  const hourlyPressure: number[] = data?.hourly?.surface_pressure || [];
+  const temps: number[] = data.hourly.temperature_2m;
+  const winds: number[] = data.hourly.windspeed_10m;
+  const dirs: number[] = data.hourly.winddirection_10m;
+  const pressures: number[] = data.hourly.surface_pressure;
+  const codes: number[] = data.hourly.weathercode;
 
-  const days: DayWeather[] = dailyTimes.map((date: string, i: number) => {
-    // Pressione: prendo il valore delle 12:00 di quel giorno come rappresentativo
-    const middayIdx = hourlyTimes.findIndex((t) => t === `${date}T12:00`);
-    const pressure = middayIdx >= 0 ? hourlyPressure[middayIdx] : hourlyPressure[i * 24 + 12] || 1013;
+  const byDate: Record<string, HourSlot[]> = {};
 
-    const code = data.daily.weathercode[i];
-    const { description, icon } = describeCode(code);
+  for (let i = 0; i < times.length; i++) {
+    const [date, time] = times[i].split("T");
+    const hour = parseInt(time.split(":")[0], 10);
+    if (hour % 2 !== 0) continue; // teniamo solo ogni 2 ore: 00, 02, 04 ... 22
 
-    return {
-      date,
-      tempMax: Math.round(data.daily.temperature_2m_max[i]),
-      tempMin: Math.round(data.daily.temperature_2m_min[i]),
-      windSpeed: Math.round(data.daily.windspeed_10m_max[i]),
-      windDirection: Math.round(data.daily.winddirection_10m_dominant[i]),
-      pressure: Math.round(pressure),
-      weatherCode: code,
+    const { description, icon } = describeCode(codes[i]);
+    if (!byDate[date]) byDate[date] = [];
+    byDate[date].push({
+      time,
+      tempC: Math.round(temps[i]),
+      windSpeed: Math.round(winds[i]),
+      windDirection: Math.round(dirs[i]),
+      pressure: Math.round(pressures[i]),
+      weatherCode: codes[i],
       description,
       icon,
-    };
-  });
+    });
+  }
+
+  const days: DayWeather[] = Object.entries(byDate).map(([date, slots]) => ({
+    date,
+    slots: slots.sort((a, b) => a.time.localeCompare(b.time)),
+  }));
 
   return { days, timezone };
 }
 
 export function windDirectionLabel(degrees: number): string {
   const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
-  const idx = Math.round(degrees / 45) % 8;
-  return dirs[idx];
+  return dirs[Math.round(degrees / 45) % 8];
 }
 

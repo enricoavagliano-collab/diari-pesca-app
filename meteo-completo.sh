@@ -1,3 +1,142 @@
+#!/bin/bash
+set -e
+echo 'Sezione Meteo completa: dettaglio ogni 2 ore, Notte/Mattina/Pomeriggio/Sera...'
+mkdir -p "app"
+mkdir -p "app/api/meteo"
+mkdir -p "app/meteo"
+mkdir -p "lib"
+cat > "lib/weather.ts" << 'SETUP_EOF_MARKER'
+export interface HourSlot {
+  time: string; // HH:mm
+  tempC: number;
+  windSpeed: number; // km/h
+  windDirection: number; // gradi
+  pressure: number; // hPa
+  weatherCode: number;
+  description: string;
+  icon: string;
+}
+
+export interface DayWeather {
+  date: string; // YYYY-MM-DD
+  slots: HourSlot[]; // ogni 2 ore, dalle 00:00 alle 22:00
+}
+
+export interface WeekWeatherForecast {
+  days: DayWeather[];
+  timezone: string;
+}
+
+const WEATHER_CODES: Record<number, { description: string; icon: string }> = {
+  0: { description: "Sereno", icon: "☀️" },
+  1: { description: "Prevalentemente sereno", icon: "🌤️" },
+  2: { description: "Parzialmente nuvoloso", icon: "⛅" },
+  3: { description: "Nuvoloso", icon: "☁️" },
+  45: { description: "Nebbia", icon: "🌫️" },
+  48: { description: "Nebbia con brina", icon: "🌫️" },
+  51: { description: "Pioviggine leggera", icon: "🌦️" },
+  53: { description: "Pioviggine moderata", icon: "🌦️" },
+  55: { description: "Pioviggine intensa", icon: "🌧️" },
+  61: { description: "Pioggia leggera", icon: "🌧️" },
+  63: { description: "Pioggia moderata", icon: "🌧️" },
+  65: { description: "Pioggia intensa", icon: "🌧️" },
+  71: { description: "Neve leggera", icon: "🌨️" },
+  73: { description: "Neve moderata", icon: "🌨️" },
+  75: { description: "Neve intensa", icon: "❄️" },
+  80: { description: "Rovesci leggeri", icon: "🌦️" },
+  81: { description: "Rovesci moderati", icon: "🌧️" },
+  82: { description: "Rovesci violenti", icon: "⛈️" },
+  95: { description: "Temporale", icon: "⛈️" },
+  96: { description: "Temporale con grandine", icon: "⛈️" },
+  99: { description: "Temporale forte con grandine", icon: "⛈️" },
+};
+
+function describeCode(code: number): { description: string; icon: string } {
+  return WEATHER_CODES[code] || { description: "Condizioni variabili", icon: "🌡️" };
+}
+
+export async function getWeekWeather(lat: number, lon: number): Promise<WeekWeatherForecast | null> {
+  const url = new URL("https://api.open-meteo.com/v1/forecast");
+  url.searchParams.set("latitude", lat.toString());
+  url.searchParams.set("longitude", lon.toString());
+  url.searchParams.set(
+    "hourly",
+    "temperature_2m,windspeed_10m,winddirection_10m,surface_pressure,weathercode"
+  );
+  url.searchParams.set("timezone", "auto");
+  url.searchParams.set("forecast_days", "7");
+
+  const res = await fetch(url.toString());
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const times: string[] = data?.hourly?.time || [];
+  if (times.length === 0) return null;
+
+  const timezone: string = data?.timezone || "UTC";
+  const temps: number[] = data.hourly.temperature_2m;
+  const winds: number[] = data.hourly.windspeed_10m;
+  const dirs: number[] = data.hourly.winddirection_10m;
+  const pressures: number[] = data.hourly.surface_pressure;
+  const codes: number[] = data.hourly.weathercode;
+
+  const byDate: Record<string, HourSlot[]> = {};
+
+  for (let i = 0; i < times.length; i++) {
+    const [date, time] = times[i].split("T");
+    const hour = parseInt(time.split(":")[0], 10);
+    if (hour % 2 !== 0) continue; // teniamo solo ogni 2 ore: 00, 02, 04 ... 22
+
+    const { description, icon } = describeCode(codes[i]);
+    if (!byDate[date]) byDate[date] = [];
+    byDate[date].push({
+      time,
+      tempC: Math.round(temps[i]),
+      windSpeed: Math.round(winds[i]),
+      windDirection: Math.round(dirs[i]),
+      pressure: Math.round(pressures[i]),
+      weatherCode: codes[i],
+      description,
+      icon,
+    });
+  }
+
+  const days: DayWeather[] = Object.entries(byDate).map(([date, slots]) => ({
+    date,
+    slots: slots.sort((a, b) => a.time.localeCompare(b.time)),
+  }));
+
+  return { days, timezone };
+}
+
+export function windDirectionLabel(degrees: number): string {
+  const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
+  return dirs[Math.round(degrees / 45) % 8];
+}
+
+SETUP_EOF_MARKER
+cat > "app/api/meteo/route.ts" << 'SETUP_EOF_MARKER'
+import { NextRequest, NextResponse } from "next/server";
+import { getWeekWeather } from "@/lib/weather";
+
+export async function GET(req: NextRequest) {
+  const lat = parseFloat(req.nextUrl.searchParams.get("lat") || "");
+  const lon = parseFloat(req.nextUrl.searchParams.get("lon") || "");
+
+  if (isNaN(lat) || isNaN(lon)) {
+    return NextResponse.json({ ok: false, error: "Coordinate mancanti o non valide." }, { status: 400 });
+  }
+
+  const forecast = await getWeekWeather(lat, lon);
+  if (!forecast) {
+    return NextResponse.json({ ok: false, error: "Meteo non disponibile per questa località." });
+  }
+
+  return NextResponse.json({ ok: true, ...forecast });
+}
+
+SETUP_EOF_MARKER
+cat > "app/meteo/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -278,3 +417,118 @@ export default function MeteoPage() {
   );
 }
 
+SETUP_EOF_MARKER
+cat > "app/page.tsx" << 'SETUP_EOF_MARKER'
+import { cookies } from "next/headers";
+import Link from "next/link";
+import { BOOKS } from "@/lib/books";
+import IOSInstallBanner from "@/components/IOSInstallBanner";
+
+export default async function Home() {
+  const cookieStore = await cookies();
+
+  const books = Object.values(BOOKS).map((book) => ({
+    ...book,
+    unlocked: cookieStore.get(`unlock_${book.id}`)?.value === "1",
+  }));
+
+  return (
+    <main className="min-h-screen bg-[#F6F5F1] flex justify-center">
+      <div className="w-full max-w-md p-5">
+        <div className="bg-[#0F2D3D] text-[#F6F5F1] rounded-xl p-5 mb-5">
+          <p className="text-[10px] uppercase tracking-widest text-[#D98E4A] mb-1">
+            Diari di Pesca
+          </p>
+          <h1 className="text-xl font-medium">Il tuo hub di lettura</h1>
+        </div>
+
+        <p className="text-[11px] uppercase tracking-widest text-[#6B7E82] mb-2">
+          I tuoi libri
+        </p>
+
+        <div className="space-y-3">
+          {books.map((book) => (
+            <Link
+              key={book.id}
+              href={`/diario/${book.id}`}
+              className="bg-white border border-[#E1DFD6] rounded-xl p-3.5 flex items-center gap-3"
+            >
+              <div className="w-11 h-15 rounded bg-[#2C6E71] text-white flex items-center justify-center text-sm font-medium flex-shrink-0">
+                {book.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">{book.name}</h3>
+                <p className="text-xs text-[#6B7E82]">
+                  {book.unlocked ? "Contenuti disponibili" : "Da sbloccare col QR"}
+                </p>
+              </div>
+              <span
+                className={`text-[10px] px-2 py-1 rounded-full font-mono ${
+                  book.unlocked
+                    ? "bg-[#e6f0ef] text-[#2C6E71]"
+                    : "bg-[#f0eee6] text-[#6B7E82]"
+                }`}
+              >
+                {book.unlocked ? "Sbloccato" : "🔒 QR"}
+              </span>
+            </Link>
+          ))}
+        </div>
+
+        <p className="text-[11px] uppercase tracking-widest text-[#6B7E82] mb-2 mt-6">
+          Strumenti — aperti a tutti
+        </p>
+
+        <Link
+          href="/maree"
+          className="bg-white border border-[#E1DFD6] rounded-xl p-3.5 flex items-center gap-3 mb-3"
+        >
+          <div className="w-9 h-9 rounded-lg bg-[#F6F5F1] flex items-center justify-center text-lg flex-shrink-0">
+            🌊
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm">Maree e luna</h3>
+            <p className="text-xs text-[#6B7E82]">Qualunque località, oggi o nei prossimi giorni</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/lenze"
+          className="bg-white border border-[#E1DFD6] rounded-xl p-3.5 flex items-center gap-3 mb-3"
+        >
+          <div className="w-9 h-9 rounded-lg bg-[#F6F5F1] flex items-center justify-center text-lg flex-shrink-0">
+            🎣
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm">Le mie lenze</h3>
+            <p className="text-xs text-[#6B7E82]">Con Mare e Foce o Diario Feeder</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/meteo"
+          className="bg-white border border-[#E1DFD6] rounded-xl p-3.5 flex items-center gap-3 mb-3"
+        >
+          <div className="w-9 h-9 rounded-lg bg-[#F6F5F1] flex items-center justify-center text-lg flex-shrink-0">
+            🌬️
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm">Meteo</h3>
+            <p className="text-xs text-[#6B7E82]">Vento, pressione, condizioni</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/sblocca"
+          className="mt-6 flex items-center justify-center gap-2 border border-dashed border-[#E1DFD6] rounded-xl py-3 text-sm text-[#2C6E71] font-medium"
+        >
+          🔑 Hai un codice? Sbloccalo qui
+        </Link>
+      </div>
+      <IOSInstallBanner />
+    </main>
+  );
+}
+
+SETUP_EOF_MARKER
+echo "Fatto: sezione Meteo con dettaglio orario, gratuita, nessuna chiave necessaria."
