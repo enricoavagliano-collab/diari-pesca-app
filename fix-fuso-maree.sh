@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo il fuso orario delle maree: uso localtime invece di conversione manuale...'
+cat > "lib/tides.ts" << 'SETUP_EOF_MARKER'
 export interface TideExtreme {
   time: string; // HH:mm locale
   type: "alta" | "bassa";
@@ -70,3 +74,5 @@ export async function getWeekTides(lat: number, lon: number): Promise<WeekTideFo
   return { events, timezone };
 }
 
+SETUP_EOF_MARKER
+echo "Fatto."
