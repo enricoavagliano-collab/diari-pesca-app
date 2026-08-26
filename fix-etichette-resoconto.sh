@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Aggiungo le etichette ai campi nel riepilogo delle voci diario...'
+cat > "components/DiarioForm.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -552,3 +556,5 @@ export default function DiarioForm({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: ogni valore nel riepilogo mostra ora anche a quale campo si riferisce."
