@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Rifinisco lo stile delle voci precedenti nel diario digitale...'
+cat > "components/DiarioForm.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -444,3 +448,5 @@ export default function DiarioForm({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: icone colorate e pulsante elimina a icona per le voci precedenti."
