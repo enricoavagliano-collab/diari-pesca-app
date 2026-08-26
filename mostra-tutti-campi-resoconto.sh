@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Rimuovo il limite di 4 campi nel riepilogo, mostro tutti quelli compilati...'
+cat > "components/DiarioForm.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -579,3 +583,5 @@ export default function DiarioForm({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: il riepilogo mostra ora tutti i campi compilati, non solo i primi 4."
