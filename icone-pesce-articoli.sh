@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Semplifico le icone: pesce per tutte le categorie tranne Attrezzatura...'
+cat > "app/articoli/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useState } from "react";
@@ -136,3 +140,5 @@ export default function ArticoliPage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: icona pesce per Tecnica/Specie/Esche/Spot/Diario, scatola per Attrezzatura."
