@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Aggiungo le miniature foto nel riepilogo delle voci salvate...'
+cat > "components/DiarioForm.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -548,3 +552,5 @@ export default function DiarioForm({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: le foto delle catture ora sono visibili nel riepilogo, non solo il conteggio."
