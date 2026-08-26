@@ -43,8 +43,15 @@ const WEATHER_CODES: Record<number, { description: string; icon: string }> = {
   99: { description: "Temporale forte con grandine", icon: "⛈️" },
 };
 
-function describeCode(code: number): { description: string; icon: string } {
-  return WEATHER_CODES[code] || { description: "Condizioni variabili", icon: "🌡️" };
+function describeCode(code: number, hour: number): { description: string; icon: string } {
+  const base = WEATHER_CODES[code] || { description: "Condizioni variabili", icon: "🌡️" };
+  const isNight = hour < 6 || hour >= 20;
+  if (isNight) {
+    if (code === 0) return { ...base, icon: "🌙" };
+    if (code === 1) return { ...base, icon: "🌙" };
+    if (code === 2) return { ...base, icon: "☁️" };
+  }
+  return base;
 }
 
 export async function getWeekWeather(lat: number, lon: number): Promise<WeekWeatherForecast | null> {
@@ -79,7 +86,7 @@ export async function getWeekWeather(lat: number, lon: number): Promise<WeekWeat
     const hour = parseInt(time.split(":")[0], 10);
     if (hour % 2 !== 0) continue; // teniamo solo ogni 2 ore: 00, 02, 04 ... 22
 
-    const { description, icon } = describeCode(codes[i]);
+    const { description, icon } = describeCode(codes[i], hour);
     if (!byDate[date]) byDate[date] = [];
     byDate[date].push({
       time,
