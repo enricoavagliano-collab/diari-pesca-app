@@ -1,10 +1,9 @@
 @import "tailwindcss";
 
-/* Colori fissi del brand: l'app ha sempre lo stesso aspetto,
-   indipendentemente dalla modalità chiara/scura del dispositivo. */
+/* Palette "Libri di Pesca" — ispirata al mare e alla costa italiana */
 :root {
-  --background: #F6F5F1;
-  --foreground: #16232B;
+  --background: #0B1F2A; /* Blu Profondo */
+  --foreground: #F6F5F1; /* Sabbia Chiara (testo su sfondo scuro) */
 }
 
 @theme inline {
@@ -29,6 +28,6 @@ textarea {
 
 input::placeholder,
 textarea::placeholder {
-  color: #6B7E82;
+  color: #8FA8B2;
 }
 

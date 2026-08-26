@@ -40,17 +40,17 @@ export default function ArticoliPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#F6F5F1] flex justify-center">
-      <div className="w-full max-w-md p-5 pb-16">
-        <Link href="/" className="text-xs text-[#6B7E82]">
+    <main className="min-h-screen bg-[#0B1F2A] flex justify-center">
+      <div className="w-full max-w-md p-5 pb-24">
+        <Link href="/" className="text-xs text-[#8FA8B2]">
           ← Home
         </Link>
         <h1 className="text-xl font-medium mt-2 mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
           Articoli
         </h1>
-        <p className="text-xs text-[#6B7E82] mb-4">{ARTICOLI.length} articoli dal blog</p>
+        <p className="text-xs text-[#8FA8B2] mb-4">{ARTICOLI.length} articoli dal blog</p>
 
-        <div className="flex items-center gap-2 bg-white border border-[#E1DFD6] rounded-xl px-3.5 py-2.5 mb-3">
+        <div className="flex items-center gap-2 bg-[#124E5A] border border-white/10 rounded-xl px-3.5 py-2.5 mb-3">
           <span>🔍</span>
           <input
             className="flex-1 outline-none text-sm bg-transparent"
@@ -65,8 +65,8 @@ export default function ArticoliPage() {
             onClick={() => setActiveTag(null)}
             className={`text-[12px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap border ${
               activeTag === null
-                ? "bg-[#0F2D3D] text-white border-[#0F2D3D]"
-                : "bg-white border-[#E1DFD6] text-[#6B7E82]"
+                ? "bg-[#2CA6A4] text-[#0B1F2A] border-[#2CA6A4]"
+                : "bg-[#124E5A] border-white/10 text-[#8FA8B2]"
             }`}
           >
             Tutti
@@ -77,8 +77,8 @@ export default function ArticoliPage() {
               onClick={() => setActiveTag(t)}
               className={`text-[12px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap border ${
                 activeTag === t
-                  ? "bg-[#2C6E71] text-white border-[#2C6E71]"
-                  : "bg-white border-[#E1DFD6] text-[#6B7E82]"
+                  ? "bg-[#2CA6A4] text-white border-[#2CA6A4]"
+                  : "bg-[#124E5A] border-white/10 text-[#8FA8B2]"
               }`}
             >
               {t}
@@ -87,7 +87,7 @@ export default function ArticoliPage() {
         </div>
 
         {filtered.length === 0 && (
-          <p className="text-sm text-[#6B7E82]">Nessun articolo trovato per questa ricerca.</p>
+          <p className="text-sm text-[#8FA8B2]">Nessun articolo trovato per questa ricerca.</p>
         )}
 
         <div className="space-y-2.5">
@@ -97,18 +97,18 @@ export default function ArticoliPage() {
               href={a.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block bg-white border border-[#E1DFD6] rounded-xl p-3.5"
+              className="block bg-[#124E5A] border border-white/10 rounded-xl p-3.5"
             >
               <div className="flex items-start justify-between gap-3 mb-1">
-                <span className="text-[10px] font-mono uppercase tracking-wide text-[#D98E4A]">
+                <span className="text-[10px] font-mono uppercase tracking-wide text-[#FF9A3C]">
                   {a.tag}
                 </span>
-                <span className="text-[#6B7E82] text-sm flex-shrink-0">↗</span>
+                <span className="text-[#8FA8B2] text-sm flex-shrink-0">↗</span>
               </div>
               <h3 className="text-[14px] leading-snug" style={{ fontFamily: "var(--font-fraunces)" }}>
                 {a.title}
               </h3>
-              <p className="text-[11px] text-[#6B7E82] mt-1.5">Leggi sul blog</p>
+              <p className="text-[11px] text-[#8FA8B2] mt-1.5">Leggi sul blog</p>
             </a>
           ))}
         </div>

@@ -1,0 +1,41 @@
+import Link from "next/link";
+import { Anchor, CalendarDays, Newspaper, KeyRound, ChevronRight } from "lucide-react";
+
+const VOCI = [
+  { href: "/lenze", Icon: Anchor, title: "Le mie lenze", subtitle: "Con Mare e Foce o Diario Feeder" },
+  { href: "/specie", Icon: CalendarDays, title: "Specie e periodi", subtitle: "Mare/Foce e Acqua dolce, mese per mese" },
+  { href: "/articoli", Icon: Newspaper, title: "Articoli", subtitle: "Tutti i contenuti tecnici dal blog" },
+  { href: "/sblocca", Icon: KeyRound, title: "Hai un codice?", subtitle: "Sbloccalo qui" },
+];
+
+export default function AltroPage() {
+  return (
+    <main className="min-h-screen bg-[#0B1F2A] text-[#F6F5F1] flex justify-center pb-24">
+      <div className="w-full max-w-md p-5">
+        <h1 className="text-[22px] mb-5" style={{ fontFamily: "var(--font-fraunces)", fontWeight: 500 }}>
+          Altro
+        </h1>
+
+        <div className="space-y-2.5">
+          {VOCI.map(({ href, Icon, title, subtitle }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-3 bg-[#124E5A] border border-white/10 rounded-xl p-3.5"
+            >
+              <div className="w-9 h-9 rounded-lg bg-[#0B1F2A] flex items-center justify-center flex-shrink-0">
+                <Icon size={18} strokeWidth={1.75} className="text-[#2CA6A4]" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm">{title}</h3>
+                <p className="text-xs text-[#8FA8B2]">{subtitle}</p>
+              </div>
+              <ChevronRight size={16} className="text-[#8FA8B2] flex-shrink-0" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}
+

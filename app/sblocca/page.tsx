@@ -88,12 +88,12 @@ function SbloccaContent() {
             onChange={(e) => setManualCode(e.target.value)}
             placeholder="Inserisci il codice"
             autoCapitalize="characters"
-            className="w-full text-center bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-sm text-white placeholder-white/40 outline-none focus:border-[#D98E4A]"
+            className="w-full text-center bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-sm text-white placeholder-white/40 outline-none focus:border-[#FF9A3C]"
           />
           <button
             type="submit"
             disabled={submitting || !manualCode.trim()}
-            className="w-full bg-[#D98E4A] text-[#0F2D3D] font-semibold rounded-lg py-3 text-sm disabled:opacity-50"
+            className="w-full bg-[#FF9A3C] text-[#0F2D3D] font-semibold rounded-lg py-3 text-sm disabled:opacity-50"
           >
             {submitting ? "Verifico…" : "Sblocca"}
           </button>

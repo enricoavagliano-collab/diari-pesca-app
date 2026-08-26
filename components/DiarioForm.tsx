@@ -81,7 +81,7 @@ export default function DiarioForm({
         </h2>
         <button
           onClick={() => setFormOpen((o) => !o)}
-          className="w-8 h-8 rounded-full bg-[#2C6E71] text-white text-lg flex items-center justify-center"
+          className="w-8 h-8 rounded-full bg-[#2CA6A4] text-white text-lg flex items-center justify-center"
         >
           {formOpen ? "×" : "+"}
         </button>
@@ -90,8 +90,8 @@ export default function DiarioForm({
       {formOpen && (
         <div className="space-y-3">
           {template.map((section, i) => (
-            <div key={i} className="bg-white border border-[#E1DFD6] rounded-xl p-3.5">
-              <h4 className="text-[11px] uppercase tracking-widest text-[#2C6E71] mb-2.5 pb-2 border-b border-[#E1DFD6]">
+            <div key={i} className="bg-[#124E5A] border border-white/10 rounded-xl p-3.5">
+              <h4 className="text-[11px] uppercase tracking-widest text-[#2CA6A4] mb-2.5 pb-2 border-b border-white/10">
                 {section.title}
               </h4>
 
@@ -100,13 +100,13 @@ export default function DiarioForm({
                   {section.fields.map((f) => (
                     <div key={f.key} className={f.type === "textarea" ? "col-span-2" : ""}>
                       {f.label && (
-                        <label className="block text-[10px] uppercase text-[#6B7E82] mb-1">
+                        <label className="block text-[10px] uppercase text-[#8FA8B2] mb-1">
                           {f.label}
                         </label>
                       )}
                       {f.type === "textarea" ? (
                         <textarea
-                          className="w-full border border-[#E1DFD6] rounded-md px-2 py-1.5 text-sm bg-[#F6F5F1] h-16"
+                          className="w-full border border-white/10 rounded-md px-2 py-1.5 text-sm bg-[#0B1F2A] h-16"
                           placeholder={f.placeholder}
                           value={values[f.key] || ""}
                           onChange={(e) => setField(f.key, e.target.value)}
@@ -114,7 +114,7 @@ export default function DiarioForm({
                       ) : (
                         <input
                           type={f.type}
-                          className="w-full border border-[#E1DFD6] rounded-md px-2 py-1.5 text-sm bg-[#F6F5F1]"
+                          className="w-full border border-white/10 rounded-md px-2 py-1.5 text-sm bg-[#0B1F2A]"
                           placeholder={f.placeholder}
                           value={values[f.key] || ""}
                           onChange={(e) => setField(f.key, e.target.value)}
@@ -130,7 +130,7 @@ export default function DiarioForm({
                   <thead>
                     <tr>
                       {section.columns.map((c) => (
-                        <th key={c.key} className="text-left text-[9px] uppercase text-[#6B7E82] pb-1">
+                        <th key={c.key} className="text-left text-[9px] uppercase text-[#8FA8B2] pb-1">
                           {c.label}
                         </th>
                       ))}
@@ -140,7 +140,7 @@ export default function DiarioForm({
                     {[0, 1, 2].map((row) => (
                       <tr key={row}>
                         {section.columns.map((c) => (
-                          <td key={c.key} className="border-t border-[#E1DFD6] py-1">
+                          <td key={c.key} className="border-t border-white/10 py-1">
                             <input
                               className="w-full bg-transparent text-xs"
                               value={values[`${c.key}_${row}`] || ""}
@@ -159,11 +159,11 @@ export default function DiarioForm({
                   <div className="grid grid-cols-2 gap-2.5">
                     {section.boxes.map((b) => (
                       <div key={b.key}>
-                        <label className="block text-[10px] uppercase text-[#6B7E82] mb-1">
+                        <label className="block text-[10px] uppercase text-[#8FA8B2] mb-1">
                           {b.label}
                         </label>
                         <input
-                          className="w-full border border-[#E1DFD6] rounded-md px-2 py-1.5 text-sm bg-[#F6F5F1]"
+                          className="w-full border border-white/10 rounded-md px-2 py-1.5 text-sm bg-[#0B1F2A]"
                           placeholder="note"
                           value={values[b.key] || ""}
                           onChange={(e) => setField(b.key, e.target.value)}
@@ -173,11 +173,11 @@ export default function DiarioForm({
                   </div>
                   {section.extraField && (
                     <div className="mt-2.5">
-                      <label className="block text-[10px] uppercase text-[#6B7E82] mb-1">
+                      <label className="block text-[10px] uppercase text-[#8FA8B2] mb-1">
                         {section.extraField.label}
                       </label>
                       <textarea
-                        className="w-full border border-[#E1DFD6] rounded-md px-2 py-1.5 text-sm bg-[#F6F5F1] h-16"
+                        className="w-full border border-white/10 rounded-md px-2 py-1.5 text-sm bg-[#0B1F2A] h-16"
                         value={values[section.extraField.key] || ""}
                         onChange={(e) => setField(section.extraField!.key, e.target.value)}
                       />
@@ -198,18 +198,18 @@ export default function DiarioForm({
         </div>
       )}
 
-      <p className="text-[11px] uppercase tracking-widest text-[#6B7E82] pt-2">
+      <p className="text-[11px] uppercase tracking-widest text-[#8FA8B2] pt-2">
         Voci precedenti ({entries.length})
       </p>
 
       {entries.length === 0 && (
-        <p className="text-sm text-[#6B7E82]">Nessuna voce ancora — inizia dal +</p>
+        <p className="text-sm text-[#8FA8B2]">Nessuna voce ancora — inizia dal +</p>
       )}
 
       {entries.map((entry) => (
-        <div key={entry.id} className="bg-white border border-[#E1DFD6] rounded-xl p-3.5">
+        <div key={entry.id} className="bg-[#124E5A] border border-white/10 rounded-xl p-3.5">
           <div className="flex justify-between items-start mb-1.5">
-            <span className="text-xs text-[#6B7E82] font-mono">
+            <span className="text-xs text-[#8FA8B2] font-mono">
               {new Date(entry.createdAt).toLocaleDateString("it-IT", {
                 day: "2-digit",
                 month: "2-digit",
@@ -218,7 +218,7 @@ export default function DiarioForm({
             </span>
             <button
               onClick={() => remove(entry.id)}
-              className="text-xs text-[#6B7E82] hover:text-red-600"
+              className="text-xs text-[#8FA8B2] hover:text-red-600"
             >
               elimina
             </button>
@@ -230,7 +230,7 @@ export default function DiarioForm({
               .map(([k, v]) => (
                 <span
                   key={k}
-                  className="text-[11px] bg-[#F6F5F1] border border-[#E1DFD6] rounded-full px-2 py-0.5"
+                  className="text-[11px] bg-[#0B1F2A] border border-white/10 rounded-full px-2 py-0.5"
                 >
                   {v}
                 </span>
