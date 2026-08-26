@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import TideChart from "@/components/TideChart";
 
 interface GeoResult {
   id: number;
@@ -263,16 +264,19 @@ export default function MareePage() {
               {todayTides.length === 0 ? (
                 <p className="text-sm text-[#a9bcc2]">Nessun dato di marea per questo giorno.</p>
               ) : (
-                <div className="flex flex-wrap gap-4">
-                  {todayTides.map((t, i) => (
-                    <div key={i} className="text-center">
-                      <div className="font-mono text-[17px]">{t.time}</div>
-                      <div className="text-[10px] text-[#a9bcc2] uppercase tracking-wide mt-0.5">
-                        {t.type === "alta" ? "Alta" : "Bassa"} · {t.height}m
+                <>
+                  <TideChart points={todayTides.map((t) => ({ time: t.time, type: t.type, height: t.height }))} />
+                  <div className="flex flex-wrap gap-4 mt-2">
+                    {todayTides.map((t, i) => (
+                      <div key={i} className="text-center">
+                        <div className="font-mono text-[17px]">{t.time}</div>
+                        <div className="text-[10px] text-[#a9bcc2] uppercase tracking-wide mt-0.5">
+                          {t.type === "alta" ? "Alta" : "Bassa"} · {t.height}m
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
             <p className="text-[11px] text-[#8FA8B2] mb-4 px-1 leading-relaxed">

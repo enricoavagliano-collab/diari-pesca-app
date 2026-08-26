@@ -14,23 +14,9 @@ export interface DiarioSection {
   fields: DiarioField[];
 }
 
-export interface CatchTableSection {
-  title: string;
-  type: "table";
-  columns: { key: string; label: string }[];
-}
-
-export interface CatchBoxesSection {
-  title: string;
-  type: "boxes";
-  boxes: { key: string; label: string }[];
-  extraField?: DiarioField; // es. "Altro"
-}
-
-export type DiarioTemplate = (DiarioSection | CatchTableSection | CatchBoxesSection)[];
-
-// Struttura 1:1 con le pagine dei PDF caricati da Enrico
-export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">, DiarioTemplate> = {
+// "Dati sessione": i campi specifici del libro (Feeder vs Mare e Foce), raggruppati
+// in sotto-sezioni solo per leggibilità del form — restano nella stessa scheda.
+export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">, DiarioSection[]> = {
   feeder: [
     {
       title: "Sessione",
@@ -38,13 +24,6 @@ export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">,
         { key: "data", label: "Data", type: "date" },
         { key: "luogo", label: "Luogo", type: "text" },
         { key: "durata", label: "Durata", type: "text", placeholder: "es. 3h" },
-      ],
-    },
-    {
-      title: "Meteo e spot",
-      fields: [
-        { key: "meteo", label: "Meteo", type: "text", placeholder: "☀️ 🌤️ ☁️ 🌦️ ⛈️" },
-        { key: "temperatura", label: "Temperatura", type: "text", placeholder: "°C" },
         { key: "spot", label: "Spot", type: "text" },
       ],
     },
@@ -76,25 +55,11 @@ export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">,
       ],
     },
     {
-      title: "Catture",
-      type: "table",
-      columns: [
-        { key: "specie", label: "Specie" },
-        { key: "peso", label: "Peso" },
-        { key: "lunghezza", label: "Lungh." },
-        { key: "nr", label: "Nr" },
-      ],
-    },
-    {
       title: "Analisi",
       fields: [
         { key: "cosa_ha_funzionato", label: "Cosa ha funzionato", type: "textarea" },
         { key: "cosa_migliorare", label: "Cosa migliorare", type: "textarea" },
       ],
-    },
-    {
-      title: "Note",
-      fields: [{ key: "note", label: "", type: "textarea" }],
     },
   ],
 
@@ -104,15 +69,11 @@ export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">,
       fields: [
         { key: "data", label: "Data", type: "date" },
         { key: "luogo", label: "Luogo", type: "text" },
-        { key: "temperatura_aria", label: "Temperatura aria", type: "text", placeholder: "°C" },
         { key: "orario", label: "Orario", type: "time" },
         { key: "vento", label: "Vento", type: "text" },
         { key: "profondita", label: "Profondità", type: "text", placeholder: "mt" },
+        { key: "spot", label: "Spot", type: "text" },
       ],
-    },
-    {
-      title: "Note sessione",
-      fields: [{ key: "note_sessione", label: "", type: "textarea" }],
     },
     {
       title: "Assetto tecnico",
@@ -125,21 +86,9 @@ export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">,
         { key: "terminale", label: "Terminale (mm)", type: "text" },
       ],
     },
-    {
-      title: "Catture",
-      type: "boxes",
-      boxes: [
-        { key: "spigola", label: "🐟 Spigola" },
-        { key: "orata", label: "🐟 Orata" },
-        { key: "sarago", label: "🐟 Sarago" },
-        { key: "cefalo", label: "🐟 Cefalo" },
-      ],
-      extraField: { key: "altro", label: "Altro", type: "textarea" },
-    },
-    {
-      title: "Note",
-      fields: [{ key: "note", label: "", type: "textarea" }],
-    },
   ],
 };
+
+// Condizioni rapide selezionabili nella scheda Meteo del diario (tag on/off)
+export const CONDIZIONI_TAGS = ["Mare calmo", "Mare mosso", "Acqua limpida", "Poco vento", "Vento forte", "Corrente"];
 
