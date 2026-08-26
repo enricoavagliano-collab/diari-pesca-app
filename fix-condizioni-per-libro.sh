@@ -1,3 +1,115 @@
+#!/bin/bash
+set -e
+echo 'Correggo i tag condizioni: diversi per Feeder e Mare e Foce...'
+cat > "lib/diario-templates.ts" << 'SETUP_EOF_MARKER'
+import { BookId } from "./books";
+
+export type FieldType = "text" | "date" | "time" | "textarea" | "number";
+
+export interface DiarioField {
+  key: string;
+  label: string;
+  type: FieldType;
+  placeholder?: string;
+}
+
+export interface DiarioSection {
+  title: string;
+  fields: DiarioField[];
+}
+
+// "Dati sessione": i campi specifici del libro (Feeder vs Mare e Foce), raggruppati
+// in sotto-sezioni solo per leggibilità del form — restano nella stessa scheda.
+export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">, DiarioSection[]> = {
+  feeder: [
+    {
+      title: "Sessione",
+      fields: [
+        { key: "data", label: "Data", type: "date" },
+        { key: "luogo", label: "Luogo", type: "text" },
+        { key: "durata", label: "Durata", type: "text", placeholder: "es. 3h" },
+        { key: "spot", label: "Spot", type: "text" },
+      ],
+    },
+    {
+      title: "Pasturatori",
+      fields: [
+        { key: "cage", label: "Cage (gr)", type: "number" },
+        { key: "block_end", label: "Block End (gr)", type: "number" },
+        { key: "pellet", label: "Pellet (gr)", type: "number" },
+        { key: "method", label: "Method (gr)", type: "number" },
+      ],
+    },
+    {
+      title: "Esche e pasture",
+      fields: [
+        { key: "esche_dure", label: "Esche dure", type: "text" },
+        { key: "esche_naturali", label: "Esche naturali", type: "text" },
+        { key: "pastura", label: "Pastura", type: "text" },
+      ],
+    },
+    {
+      title: "Assetto pescante",
+      fields: [
+        { key: "canna", label: "Canna (mt)", type: "text" },
+        { key: "mulinello", label: "Mulinello", type: "text" },
+        { key: "lenza_madre", label: "Lenza madre (mm)", type: "text" },
+        { key: "terminale", label: "Terminale (mm)", type: "text" },
+        { key: "amo", label: "Amo (nr)", type: "text" },
+      ],
+    },
+    {
+      title: "Analisi",
+      fields: [
+        { key: "cosa_ha_funzionato", label: "Cosa ha funzionato", type: "textarea" },
+        { key: "cosa_migliorare", label: "Cosa migliorare", type: "textarea" },
+      ],
+    },
+  ],
+
+  "mare-e-foce": [
+    {
+      title: "Sessione di pesca",
+      fields: [
+        { key: "data", label: "Data", type: "date" },
+        { key: "luogo", label: "Luogo", type: "text" },
+        { key: "orario", label: "Orario", type: "time" },
+        { key: "vento", label: "Vento", type: "text" },
+        { key: "profondita", label: "Profondità", type: "text", placeholder: "mt" },
+        { key: "spot", label: "Spot", type: "text" },
+      ],
+    },
+    {
+      title: "Assetto tecnico",
+      fields: [
+        { key: "canna", label: "Canna (mt)", type: "text" },
+        { key: "mulinello", label: "Mulinello", type: "text" },
+        { key: "amo", label: "Amo", type: "text" },
+        { key: "galleggiante", label: "Galleggiante (gr)", type: "text" },
+        { key: "filo_madre", label: "Filo madre (mm)", type: "text" },
+        { key: "terminale", label: "Terminale (mm)", type: "text" },
+      ],
+    },
+  ],
+};
+
+// Condizioni rapide selezionabili nella scheda Meteo del diario (tag on/off) — specifiche per libro
+export const CONDIZIONI_TAGS: Record<"feeder" | "mare-e-foce", string[]> = {
+  feeder: ["Corrente forte", "Corrente media", "Corrente lenta", "Acqua limpida", "Poco vento", "Vento forte"],
+  "mare-e-foce": [
+    "Mare calmo",
+    "Mare mosso",
+    "Corrente forte",
+    "Corrente media",
+    "Corrente lenta",
+    "Acqua limpida",
+    "Poco vento",
+    "Vento forte",
+  ],
+};
+
+SETUP_EOF_MARKER
+cat > "components/DiarioForm.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -443,3 +555,5 @@ export default function DiarioForm({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: Feeder ha corrente lenta/media/forte, Mare e Foce ha entrambi mare calmo/mosso e corrente."

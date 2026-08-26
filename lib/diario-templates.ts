@@ -89,6 +89,18 @@ export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">,
   ],
 };
 
-// Condizioni rapide selezionabili nella scheda Meteo del diario (tag on/off)
-export const CONDIZIONI_TAGS = ["Mare calmo", "Mare mosso", "Acqua limpida", "Poco vento", "Vento forte", "Corrente"];
+// Condizioni rapide selezionabili nella scheda Meteo del diario (tag on/off) — specifiche per libro
+export const CONDIZIONI_TAGS: Record<"feeder" | "mare-e-foce", string[]> = {
+  feeder: ["Corrente forte", "Corrente media", "Corrente lenta", "Acqua limpida", "Poco vento", "Vento forte"],
+  "mare-e-foce": [
+    "Mare calmo",
+    "Mare mosso",
+    "Corrente forte",
+    "Corrente media",
+    "Corrente lenta",
+    "Acqua limpida",
+    "Poco vento",
+    "Vento forte",
+  ],
+};
 
