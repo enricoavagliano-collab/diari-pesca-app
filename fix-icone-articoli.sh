@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo le icone degli articoli con scelte piu adatte per categoria...'
+cat > "app/articoli/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useState } from "react";
@@ -136,3 +140,5 @@ export default function ArticoliPage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: Target per Tecnica, Package per Attrezzatura, BookOpen per Diario."
