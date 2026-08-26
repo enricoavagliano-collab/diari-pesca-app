@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Correggo i nomi veri dei 4 PDF per libro...'
+cat > "app/diario/[bookId]/page.tsx" << 'SETUP_EOF_MARKER'
 import { cookies } from "next/headers";
 import Link from "next/link";
 import Image from "next/image";
@@ -110,3 +114,5 @@ export default async function DiarioBookPage({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: nomi PDF corretti per Feeder e Mare e Foce."
