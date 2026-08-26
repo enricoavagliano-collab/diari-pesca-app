@@ -7,6 +7,8 @@ export interface CatchEntry {
   lunghezza?: string;
   peso?: string;
   time: string; // HH:mm
+  foto?: string; // immagine compressa, salvata come data URL
+  nota?: string;
 }
 
 export interface MeteoSnapshot {
@@ -74,6 +76,27 @@ export async function getEntries(
     data: parseData(row.data),
     createdAt: row.created_at.toISOString(),
   }));
+}
+
+export async function updateEntry(
+  id: string,
+  deviceId: string,
+  data: DiarioEntryData
+): Promise<DiarioEntry | null> {
+  const [row] = await sql`
+    UPDATE diario_entries
+    SET data = ${sql.json(data as unknown as never)}
+    WHERE id = ${id} AND device_id = ${deviceId}
+    RETURNING id, book_id, device_id, data, created_at
+  `;
+  if (!row) return null;
+  return {
+    id: row.id,
+    bookId: row.book_id,
+    deviceId: row.device_id,
+    data: parseData(row.data),
+    createdAt: row.created_at.toISOString(),
+  };
 }
 
 export async function deleteEntry(id: string, deviceId: string): Promise<boolean> {
