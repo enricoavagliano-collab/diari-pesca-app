@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Tolgo il controllo stazioni che bloccava anche localita costiere vere (Fiumicino, Ostia Antica)...'
+cat > "lib/tides.ts" << 'SETUP_EOF_MARKER'
 export interface TideExtreme {
   time: string; // HH:mm locale
   type: "alta" | "bassa";
@@ -67,3 +71,5 @@ export async function getWeekTides(lat: number, lon: number): Promise<WeekTideFo
   return { events, timezone };
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: torna a funzionare per le localita costiere vere."
