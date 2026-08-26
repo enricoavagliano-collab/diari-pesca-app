@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Rifinisco lo stile della sezione Luna, coerente con le altre...'
+cat > "app/maree/page.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -324,3 +328,5 @@ export default function MareePage() {
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: card unica con icone in cerchio per la luna."
