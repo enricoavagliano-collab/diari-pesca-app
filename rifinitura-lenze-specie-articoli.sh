@@ -1,3 +1,345 @@
+#!/bin/bash
+set -e
+echo 'Rifinitura estetica: Specie, Articoli, Lenze secondo il nuovo mockup...'
+mkdir -p "app/articoli"
+mkdir -p "app/lenze"
+mkdir -p "app/specie"
+mkdir -p "lib"
+cat > "lib/specie.ts" << 'SETUP_EOF_MARKER'
+export type SpecieCategory = "mare" | "dolce";
+export type Rating = 1 | 2 | 3; // 1 = non buono, 2 = buono, 3 = ottimo
+
+export interface Specie {
+  name: string;
+  scientificName: string;
+  category: SpecieCategory;
+  months: Rating[]; // 12 valori, Gennaio → Dicembre
+  note: string;
+}
+
+export const MONTH_LABELS = [
+  "Gen", "Feb", "Mar", "Apr", "Mag", "Giu",
+  "Lug", "Ago", "Set", "Ott", "Nov", "Dic",
+];
+
+export const RATING_LABELS: Record<Rating, string> = {
+  1: "Non buono",
+  2: "Buono",
+  3: "Ottimo",
+};
+
+export const SPECIE: Specie[] = [
+  {
+    name: "Spigola",
+    scientificName: "Dicentrarchus labrax",
+    category: "mare",
+    months: [2, 1, 2, 2, 2, 2, 2, 1, 3, 3, 3, 3],
+    note: "Esche bigattino, gambero, sarda, alici.",
+  },
+  {
+    name: "Sarago",
+    scientificName: "Diplodus sargus",
+    category: "mare",
+    months: [1, 1, 2, 2, 2, 2, 2, 1, 3, 3, 3, 3],
+    note: "Esche bigattino, gambero, sarda, alici.",
+  },
+  {
+    name: "Orata",
+    scientificName: "Sparus aurata",
+    category: "mare",
+    months: [1, 1, 2, 2, 3, 3, 3, 2, 3, 3, 1, 1],
+    note: "Esche bigattino, gambero, sarda, alici, anellidi vari e molluschi.",
+  },
+  {
+    name: "Cefalo",
+    scientificName: "Mugil cephalus",
+    category: "mare",
+    months: [1, 1, 2, 3, 3, 2, 2, 2, 3, 3, 2, 1],
+    note: "Esche bigattino, gambero, sarda, alici, pane.",
+  },
+  {
+    name: "Cavedano",
+    scientificName: "Squalius cephalus",
+    category: "dolce",
+    months: [1, 1, 3, 3, 3, 2, 2, 2, 3, 3, 2, 2],
+    note: "Esche bigattino, verme, mais, mora.",
+  },
+  {
+    name: "Carpa",
+    scientificName: "Cyprinus carpio",
+    category: "dolce",
+    months: [2, 1, 2, 3, 3, 2, 2, 2, 3, 3, 2, 1],
+    note: "Esche bigattino, mais, verme.",
+  },
+  {
+    name: "Carassio",
+    scientificName: "Carassius carassius",
+    category: "dolce",
+    months: [1, 1, 2, 3, 3, 2, 2, 2, 3, 3, 2, 1],
+    note: "Esche bigattino, mais, verme.",
+  },
+  {
+    name: "Breme",
+    scientificName: "Abramis brama",
+    category: "dolce",
+    months: [1, 1, 2, 3, 3, 2, 2, 2, 3, 3, 2, 2],
+    note: "Esche bigattino, verme, mais.",
+  },
+];
+
+export function getSpecieByCategory(category: SpecieCategory): Specie[] {
+  return SPECIE.filter((s) => s.category === category);
+}
+
+SETUP_EOF_MARKER
+cat > "app/specie/page.tsx" << 'SETUP_EOF_MARKER'
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { Fish, Waves, Droplets } from "lucide-react";
+import { getSpecieByCategory, MONTH_LABELS, RATING_LABELS, SpecieCategory, Rating } from "@/lib/specie";
+
+function ratingColor(r: Rating): string {
+  if (r === 3) return "bg-[#2CA6A4]";
+  if (r === 2) return "bg-[#FF9A3C]";
+  return "bg-white/10";
+}
+
+export default function SpeciePage() {
+  const [category, setCategory] = useState<SpecieCategory>("mare");
+  const specieList = getSpecieByCategory(category);
+
+  return (
+    <main className="min-h-screen bg-[#0B1F2A] text-[#F6F5F1] flex justify-center">
+      <div className="w-full max-w-md p-5 pb-24">
+        <Link href="/" className="text-xs text-[#8FA8B2]">
+          ← Home
+        </Link>
+        <h1 className="text-xl mt-2 mb-4" style={{ fontFamily: "var(--font-fraunces)", fontWeight: 500 }}>
+          Specie e periodi
+        </h1>
+
+        <div className="flex gap-1.5 mb-5">
+          <button
+            onClick={() => setCategory("mare")}
+            className={`flex items-center gap-1.5 text-[12.5px] font-medium px-3 py-1.5 rounded-full border ${
+              category === "mare"
+                ? "bg-[#2CA6A4] text-[#0B1F2A] border-[#2CA6A4]"
+                : "bg-[#124E5A] border-white/10 text-[#8FA8B2]"
+            }`}
+          >
+            <Waves size={14} strokeWidth={2} /> Mare / Foce
+          </button>
+          <button
+            onClick={() => setCategory("dolce")}
+            className={`flex items-center gap-1.5 text-[12.5px] font-medium px-3 py-1.5 rounded-full border ${
+              category === "dolce"
+                ? "bg-[#2CA6A4] text-[#0B1F2A] border-[#2CA6A4]"
+                : "bg-[#124E5A] border-white/10 text-[#8FA8B2]"
+            }`}
+          >
+            <Droplets size={14} strokeWidth={2} /> Acqua dolce
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2.5 mb-5 text-[10.5px] text-[#8FA8B2]">
+          <span className="flex items-center gap-1.5 bg-[#124E5A] border border-white/10 rounded-full px-2.5 py-1">
+            <span className="w-2.5 h-2.5 rounded-sm bg-white/10 inline-block"></span> Non buono
+          </span>
+          <span className="flex items-center gap-1.5 bg-[#124E5A] border border-white/10 rounded-full px-2.5 py-1">
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#FF9A3C] inline-block"></span> Buono
+          </span>
+          <span className="flex items-center gap-1.5 bg-[#124E5A] border border-white/10 rounded-full px-2.5 py-1">
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#2CA6A4] inline-block"></span> Ottimo
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          {specieList.map((specie) => (
+            <div key={specie.name} className="bg-[#124E5A] border border-white/10 rounded-xl p-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-11 h-11 rounded-lg bg-[#0B1F2A] flex items-center justify-center flex-shrink-0">
+                  <Fish size={20} strokeWidth={1.5} className="text-[#2CA6A4]" />
+                </div>
+                <div>
+                  <h3 className="text-[16px]" style={{ fontFamily: "var(--font-fraunces)", fontWeight: 500 }}>
+                    {specie.name}
+                  </h3>
+                  <p className="text-[11px] text-[#8FA8B2] italic">{specie.scientificName}</p>
+                </div>
+              </div>
+
+              {[specie.months.slice(0, 6), specie.months.slice(6, 12)].map((half, rowIdx) => (
+                <div key={rowIdx} className="grid grid-cols-6 gap-1.5 mb-1.5">
+                  {half.map((rating, i) => {
+                    const monthIdx = rowIdx * 6 + i;
+                    return (
+                      <div key={monthIdx} className="text-center">
+                        <div
+                          className={`rounded-md h-6 ${ratingColor(rating)}`}
+                          title={RATING_LABELS[rating]}
+                        />
+                        <div className="text-[9px] text-[#8FA8B2] mt-1">{MONTH_LABELS[monthIdx]}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+
+              <p className="text-[12px] text-[#8FA8B2] italic leading-relaxed pt-2.5 mt-1.5 border-t border-white/10">
+                {specie.note}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+SETUP_EOF_MARKER
+cat > "app/articoli/page.tsx" << 'SETUP_EOF_MARKER'
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { Wrench, Fish, Worm, CircleGauge, MapPin, NotebookText } from "lucide-react";
+import { ARTICOLI, TAGS, Tag } from "@/lib/articoli";
+
+const TAG_STYLES: Record<Tag, { Icon: typeof Wrench; bg: string }> = {
+  Tecnica: { Icon: Wrench, bg: "#2CA6A4" },
+  Specie: { Icon: Fish, bg: "#5B9BD5" },
+  Esche: { Icon: Worm, bg: "#C97B4A" },
+  Attrezzatura: { Icon: CircleGauge, bg: "#8FA8B2" },
+  Spot: { Icon: MapPin, bg: "#7CB342" },
+  Diario: { Icon: NotebookText, bg: "#8FA8B2" },
+};
+
+function normalize(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, ""); // toglie gli accenti (é→e, ò→o, ecc.)
+}
+
+// Due parole "corrispondono" se condividono la stessa radice, ignorando l'ultima lettera
+// (gestisce singolare/plurale italiano: "spigola" ↔ "spigole", "canna" ↔ "canne", ecc.)
+// o se una è il prefisso dell'altra (ricerca parziale mentre si scrive).
+function wordsMatch(word: string, queryWord: string): boolean {
+  const minLen = Math.min(word.length, queryWord.length);
+  if (minLen < 3) return false; // parole troppo corte: evitiamo falsi positivi (es. "a", "il")
+  if (word.includes(queryWord) || queryWord.includes(word)) return true;
+  if (minLen < 4) return false;
+  return word.slice(0, minLen - 1) === queryWord.slice(0, minLen - 1);
+}
+
+function titleMatchesQuery(title: string, query: string): boolean {
+  const titleWords = normalize(title).split(/\W+/).filter(Boolean);
+  const queryWords = normalize(query).split(/\s+/).filter(Boolean);
+  return queryWords.every((qw) => titleWords.some((tw) => wordsMatch(tw, qw)));
+}
+
+export default function ArticoliPage() {
+  const [query, setQuery] = useState("");
+  const [activeTag, setActiveTag] = useState<Tag | null>(null);
+
+  const filtered = ARTICOLI.filter((a) => {
+    const matchesTag = !activeTag || a.tag === activeTag;
+    if (!matchesTag) return false;
+    if (!query.trim()) return true;
+    return titleMatchesQuery(a.title, query);
+  });
+
+  return (
+    <main className="min-h-screen bg-[#0B1F2A] flex justify-center">
+      <div className="w-full max-w-md p-5 pb-24">
+        <Link href="/" className="text-xs text-[#8FA8B2]">
+          ← Home
+        </Link>
+        <h1 className="text-xl font-medium mt-2 mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
+          Articoli
+        </h1>
+        <p className="text-xs text-[#8FA8B2] mb-4">{ARTICOLI.length} articoli dal blog</p>
+
+        <div className="flex items-center gap-2 bg-[#124E5A] border border-white/10 rounded-xl px-3.5 py-2.5 mb-3">
+          <span>🔍</span>
+          <input
+            className="flex-1 outline-none text-sm bg-transparent"
+            placeholder="Cerca un articolo…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+
+        <div className="flex gap-1.5 overflow-x-auto pb-1 mb-4 -mx-1 px-1">
+          <button
+            onClick={() => setActiveTag(null)}
+            className={`text-[12px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap border ${
+              activeTag === null
+                ? "bg-[#2CA6A4] text-[#0B1F2A] border-[#2CA6A4]"
+                : "bg-[#124E5A] border-white/10 text-[#8FA8B2]"
+            }`}
+          >
+            Tutti
+          </button>
+          {TAGS.map((t) => (
+            <button
+              key={t}
+              onClick={() => setActiveTag(t)}
+              className={`text-[12px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap border ${
+                activeTag === t
+                  ? "bg-[#2CA6A4] text-white border-[#2CA6A4]"
+                  : "bg-[#124E5A] border-white/10 text-[#8FA8B2]"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {filtered.length === 0 && (
+          <p className="text-sm text-[#8FA8B2]">Nessun articolo trovato per questa ricerca.</p>
+        )}
+
+        <div className="space-y-2.5">
+          {filtered.map((a) => {
+            const style = TAG_STYLES[a.tag];
+            const TagIcon = style.Icon;
+            return (
+              <a
+                key={a.url}
+                href={a.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 bg-[#124E5A] border border-white/10 rounded-xl p-3.5"
+              >
+                <div
+                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: style.bg }}
+                >
+                  <TagIcon size={19} strokeWidth={1.75} className="text-[#0B1F2A]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-mono uppercase tracking-wide" style={{ color: style.bg }}>
+                    {a.tag}
+                  </span>
+                  <h3 className="text-[14px] leading-snug mt-0.5" style={{ fontFamily: "var(--font-fraunces)" }}>
+                    {a.title}
+                  </h3>
+                </div>
+                <span className="text-[#8FA8B2] text-sm flex-shrink-0">↗</span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+SETUP_EOF_MARKER
+cat > "app/lenze/LenzeClient.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -426,3 +768,5 @@ export default function LenzeClient({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto: griglia mesi compatta con nomi scientifici, articoli con icona colorata, lenze con righe a icona e pulsante Aggiungi alle mie."

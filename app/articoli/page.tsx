@@ -2,7 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Wrench, Fish, Worm, CircleGauge, MapPin, NotebookText } from "lucide-react";
 import { ARTICOLI, TAGS, Tag } from "@/lib/articoli";
+
+const TAG_STYLES: Record<Tag, { Icon: typeof Wrench; bg: string }> = {
+  Tecnica: { Icon: Wrench, bg: "#2CA6A4" },
+  Specie: { Icon: Fish, bg: "#5B9BD5" },
+  Esche: { Icon: Worm, bg: "#C97B4A" },
+  Attrezzatura: { Icon: CircleGauge, bg: "#8FA8B2" },
+  Spot: { Icon: MapPin, bg: "#7CB342" },
+  Diario: { Icon: NotebookText, bg: "#8FA8B2" },
+};
 
 function normalize(text: string): string {
   return text
@@ -91,26 +101,35 @@ export default function ArticoliPage() {
         )}
 
         <div className="space-y-2.5">
-          {filtered.map((a) => (
-            <a
-              key={a.url}
-              href={a.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block bg-[#124E5A] border border-white/10 rounded-xl p-3.5"
-            >
-              <div className="flex items-start justify-between gap-3 mb-1">
-                <span className="text-[10px] font-mono uppercase tracking-wide text-[#FF9A3C]">
-                  {a.tag}
-                </span>
+          {filtered.map((a) => {
+            const style = TAG_STYLES[a.tag];
+            const TagIcon = style.Icon;
+            return (
+              <a
+                key={a.url}
+                href={a.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 bg-[#124E5A] border border-white/10 rounded-xl p-3.5"
+              >
+                <div
+                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: style.bg }}
+                >
+                  <TagIcon size={19} strokeWidth={1.75} className="text-[#0B1F2A]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-mono uppercase tracking-wide" style={{ color: style.bg }}>
+                    {a.tag}
+                  </span>
+                  <h3 className="text-[14px] leading-snug mt-0.5" style={{ fontFamily: "var(--font-fraunces)" }}>
+                    {a.title}
+                  </h3>
+                </div>
                 <span className="text-[#8FA8B2] text-sm flex-shrink-0">↗</span>
-              </div>
-              <h3 className="text-[14px] leading-snug" style={{ fontFamily: "var(--font-fraunces)" }}>
-                {a.title}
-              </h3>
-              <p className="text-[11px] text-[#8FA8B2] mt-1.5">Leggi sul blog</p>
-            </a>
-          ))}
+              </a>
+            );
+          })}
         </div>
       </div>
     </main>
