@@ -1,3 +1,7 @@
+#!/bin/bash
+set -e
+echo 'Tolgo il vincolo fotocamera: ora si puo scegliere anche dalla galleria...'
+cat > "components/DiarioForm.tsx" << 'SETUP_EOF_MARKER'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -531,3 +535,5 @@ export default function DiarioForm({
   );
 }
 
+SETUP_EOF_MARKER
+echo "Fatto."
