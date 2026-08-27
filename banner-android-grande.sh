@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Rendo il banner Android più grande e in alto ==="
+
+cat > components/AndroidInstallBanner.tsx << 'EOF'
 "use client";
 
 import { useEffect, useState } from "react";
@@ -76,3 +82,9 @@ export default function AndroidInstallBanner() {
     </div>
   );
 }
+EOF
+
+echo "=== File aggiornato: components/AndroidInstallBanner.tsx ==="
+echo ""
+echo "Ricorda: bash banner-android-grande.sh, poi:"
+echo "git add -A && git commit -m 'banner Android piu grande e in alto' && git push"
