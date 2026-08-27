@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Correggo il testo della checkbox in /entra ==="
+
+cat > app/entra/page.tsx << 'EOF'
 "use client";
 
 import { Suspense, useState } from "react";
@@ -103,3 +109,9 @@ export default function EntraPage() {
     </Suspense>
   );
 }
+EOF
+
+echo "=== File modificato: app/entra/page.tsx ==="
+echo ""
+echo "Ricorda: bash fix-testo-consenso-entra.sh, poi:"
+echo "git add -A && git commit -m 'fix testo checkbox consenso in /entra' && git push"
