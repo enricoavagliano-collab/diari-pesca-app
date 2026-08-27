@@ -35,7 +35,35 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const res = NextResponse.json({ ok: true, bookId: book.id, bookName: book.name });
+  // Collega l'email già data al gate d'ingresso alla lista Brevo di
+  // questo libro specifico (best-effort: se fallisce non blocca lo sblocco).
+  // DEBUG TEMPORANEO: brevoDebug nella risposta serve solo per diagnosticare
+  // perche i contatti non arrivano su Brevo - va rimosso una volta risolto.
+  const visitorEmail = req.cookies.get("visitor_email")?.value;
+  const brevoBook = toBrevoBook(book.id);
+  let brevoDebug = "non tentato";
+
+  if (!visitorEmail) {
+    brevoDebug = "cookie visitor_email assente nella richiesta";
+  } else if (!brevoBook) {
+    brevoDebug = `nessuna lista Brevo mappata per bookId '${book.id}'`;
+  } else {
+    try {
+      const brevoResult = await subscribeToBrevo(visitorEmail, brevoBook);
+      brevoDebug = brevoResult.ok
+        ? `OK (email: ${visitorEmail}, lista: ${brevoBook})`
+        : `ERRORE status ${brevoResult.status}: ${brevoResult.error}`;
+    } catch (err) {
+      brevoDebug = `ECCEZIONE: ${err instanceof Error ? err.message : String(err)}`;
+    }
+  }
+
+  const res = NextResponse.json({
+    ok: true,
+    bookId: book.id,
+    bookName: book.name,
+    brevoDebug,
+  });
 
   // Cookie di sblocco: 1 anno, leggibile lato client per mostrare lo stato "Sbloccato"
   res.cookies.set(`unlock_${book.id}`, "1", {
@@ -43,18 +71,6 @@ export async function POST(req: NextRequest) {
     path: "/",
     sameSite: "lax",
   });
-
-  // Collega l'email già data al gate d'ingresso alla lista Brevo di
-  // questo libro specifico (best-effort: se fallisce non blocca lo sblocco).
-  const visitorEmail = req.cookies.get("visitor_email")?.value;
-  const brevoBook = toBrevoBook(book.id);
-  if (visitorEmail && brevoBook) {
-    try {
-      await subscribeToBrevo(visitorEmail, brevoBook);
-    } catch (err) {
-      console.error("Errore invio a Brevo dopo sblocco:", err);
-    }
-  }
 
   return res;
 }
