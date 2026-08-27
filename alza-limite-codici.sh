@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Alzo il limite di attivazioni per codice (spostato su variabile d'ambiente) ==="
+
+cat > lib/books.ts << 'EOF'
 // Configurazione centrale: un libro = un codice di sblocco (dal QR stampato nella prima pagina)
 // Il codice va cambiato ad ogni ristampa (rotazione) per limitare la condivisione.
 //
@@ -46,3 +52,14 @@ export function findBookByCode(code: string): Book | undefined {
     (b) => b.unlockCode.toLowerCase() === code.trim().toLowerCase()
   );
 }
+EOF
+
+echo "=== File modificato: lib/books.ts ==="
+echo ""
+echo "=== PROSSIMI PASSI (da fare tu su Vercel) ==="
+echo "Opzionale: se non aggiungi nulla, il limite sarà già 500 di default."
+echo "Se in futuro vuoi cambiarlo senza toccare il codice, su Vercel →"
+echo "Settings → Environment Variables aggiungi:"
+echo "  MAX_ACTIVATIONS = 500   (o il numero che preferisci in quel momento)"
+echo ""
+echo "Poi: git add -A && git commit -m 'alza limite attivazioni codice a 500' && git push"
