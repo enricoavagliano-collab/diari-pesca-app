@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+mkdir -p lib
+
+cat > lib/weather.ts << 'FILE_EOF'
 export interface HourSlot {
   time: string; // HH:mm
   tempC: number;
@@ -163,3 +169,6 @@ export function windDirectionLabel(degrees: number): string {
   const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
   return dirs[Math.round(degrees / 45) % 8];
 }
+FILE_EOF
+
+echo "Fatto: nomi parametri corretti per lAPI storico (wind_speed_10m, weather_code)."
