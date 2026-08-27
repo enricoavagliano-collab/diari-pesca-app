@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Fish, Waves, CloudSun, Anchor, CalendarDays, BookOpen, Newspaper, KeyRound } from "lucide-react";
 import { BOOKS } from "@/lib/books";
 import IOSInstallBanner from "@/components/IOSInstallBanner";
+import AndroidInstallBanner from "@/components/AndroidInstallBanner";
 
 const COVERS: Record<string, string> = {
   feeder: "/covers/feeder.jpg",
@@ -112,6 +113,7 @@ export default async function Home() {
         </div>
       </div>
       <IOSInstallBanner />
+      <AndroidInstallBanner />
     </main>
   );
 }
