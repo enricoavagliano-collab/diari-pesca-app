@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Rimuovo il debug temporaneo (problema risolto: IP autorizzati Brevo) ==="
+
+cat > app/api/unlock/route.ts << 'EOF'
 import { NextRequest, NextResponse } from "next/server";
 import { findBookByCode } from "@/lib/books";
 import { tryActivate } from "@/lib/activations";
@@ -58,3 +64,37 @@ export async function POST(req: NextRequest) {
 
   return res;
 }
+EOF
+
+python3 << 'PYEOF'
+path = "app/sblocca/page.tsx"
+with open(path, "r") as f:
+    content = f.read()
+
+old = '''            setBookName(data.bookName);
+            setMessage(
+              `${data.bookName} sbloccato su questo dispositivo.` +
+                (data.brevoDebug ? ` [DEBUG Brevo: ${data.brevoDebug}]` : "")
+            );
+            setTimeout(() => router.push("/"), 8000); // rallentato temporaneamente per leggere il debug Brevo'''
+
+new = '''            setBookName(data.bookName);
+            setMessage(`${data.bookName} sbloccato su questo dispositivo.`);
+            setTimeout(() => router.push("/"), 1800);'''
+
+if old in content:
+    content = content.replace(old, new)
+    with open(path, "w") as f:
+        f.write(content)
+    print("app/sblocca/page.tsx ripulito.")
+else:
+    print("app/sblocca/page.tsx: debug non trovato (forse già pulito), nessuna modifica.")
+PYEOF
+
+echo ""
+echo "=== File ripuliti: ==="
+echo "  app/api/unlock/route.ts"
+echo "  app/sblocca/page.tsx"
+echo ""
+echo "Ricorda: bash rimuovi-debug-brevo.sh, poi:"
+echo "git add -A && git commit -m 'rimuove debug temporaneo brevo' && git push"

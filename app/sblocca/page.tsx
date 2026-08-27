@@ -40,11 +40,8 @@ function SbloccaContent() {
           if (data.ok) {
             setStatus("ok");
             setBookName(data.bookName);
-            setMessage(
-              `${data.bookName} sbloccato su questo dispositivo.` +
-                (data.brevoDebug ? ` [DEBUG Brevo: ${data.brevoDebug}]` : "")
-            );
-            setTimeout(() => router.push("/"), 8000); // rallentato temporaneamente per leggere il debug Brevo
+            setMessage(`${data.bookName} sbloccato su questo dispositivo.`);
+            setTimeout(() => router.push("/"), 1800);
           } else {
             setStatus("manual");
             setMessage(data.error || "Codice non valido. Riprova.");
