@@ -49,8 +49,16 @@ export default async function DiarioBookPage({
           <div className="text-4xl mb-4">🔒</div>
           <h1 className="text-lg font-medium mb-2">{book.name}</h1>
           <p className="text-sm text-[#8FA8B2] mb-6">
-            Inquadra il QR nella prima pagina della tua copia per sbloccare i contenuti.
+            Inquadra il QR nella prima pagina della tua copia, oppure inserisci
+            manualmente il codice di sblocco per accedere ai contenuti.
           </p>
+          <Link
+            href="/sblocca"
+            className="inline-block bg-[#2CA6A4] rounded-lg px-5 py-2.5 text-sm font-medium mb-4"
+          >
+            Inserisci il codice del libro
+          </Link>
+          <br />
           <Link href="/" className="text-sm text-[#2CA6A4] underline">
             ← Torna alla home
           </Link>
