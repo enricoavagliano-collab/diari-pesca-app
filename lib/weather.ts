@@ -54,7 +54,11 @@ function describeCode(code: number, hour: number): { description: string; icon: 
   return base;
 }
 
-export async function getWeekWeather(lat: number, lon: number): Promise<WeekWeatherForecast | null> {
+export async function getWeekWeather(
+  lat: number,
+  lon: number,
+  options?: { pastDays?: number; forecastDays?: number }
+): Promise<WeekWeatherForecast | null> {
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude", lat.toString());
   url.searchParams.set("longitude", lon.toString());
@@ -63,7 +67,10 @@ export async function getWeekWeather(lat: number, lon: number): Promise<WeekWeat
     "temperature_2m,windspeed_10m,winddirection_10m,surface_pressure,weathercode"
   );
   url.searchParams.set("timezone", "auto");
-  url.searchParams.set("forecast_days", "7");
+  url.searchParams.set("forecast_days", String(options?.forecastDays ?? 7));
+  if (options?.pastDays) {
+    url.searchParams.set("past_days", String(options.pastDays));
+  }
 
   const res = await fetch(url.toString());
   if (!res.ok) return null;
@@ -112,4 +119,3 @@ export function windDirectionLabel(degrees: number): string {
   const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
   return dirs[Math.round(degrees / 45) % 8];
 }
-

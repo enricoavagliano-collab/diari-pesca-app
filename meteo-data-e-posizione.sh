@@ -1,3 +1,242 @@
+#!/bin/bash
+set -e
+
+mkdir -p app/api/meteo app/api/reverse-geocode lib components
+
+cat > lib/weather.ts << 'FILE_EOF'
+export interface HourSlot {
+  time: string; // HH:mm
+  tempC: number;
+  windSpeed: number; // km/h
+  windDirection: number; // gradi
+  pressure: number; // hPa
+  weatherCode: number;
+  description: string;
+  icon: string;
+}
+
+export interface DayWeather {
+  date: string; // YYYY-MM-DD
+  slots: HourSlot[]; // ogni 2 ore, dalle 00:00 alle 22:00
+}
+
+export interface WeekWeatherForecast {
+  days: DayWeather[];
+  timezone: string;
+}
+
+const WEATHER_CODES: Record<number, { description: string; icon: string }> = {
+  0: { description: "Sereno", icon: "☀️" },
+  1: { description: "Prevalentemente sereno", icon: "🌤️" },
+  2: { description: "Parzialmente nuvoloso", icon: "⛅" },
+  3: { description: "Nuvoloso", icon: "☁️" },
+  45: { description: "Nebbia", icon: "🌫️" },
+  48: { description: "Nebbia con brina", icon: "🌫️" },
+  51: { description: "Pioviggine leggera", icon: "🌦️" },
+  53: { description: "Pioviggine moderata", icon: "🌦️" },
+  55: { description: "Pioviggine intensa", icon: "🌧️" },
+  61: { description: "Pioggia leggera", icon: "🌧️" },
+  63: { description: "Pioggia moderata", icon: "🌧️" },
+  65: { description: "Pioggia intensa", icon: "🌧️" },
+  71: { description: "Neve leggera", icon: "🌨️" },
+  73: { description: "Neve moderata", icon: "🌨️" },
+  75: { description: "Neve intensa", icon: "❄️" },
+  80: { description: "Rovesci leggeri", icon: "🌦️" },
+  81: { description: "Rovesci moderati", icon: "🌧️" },
+  82: { description: "Rovesci violenti", icon: "⛈️" },
+  95: { description: "Temporale", icon: "⛈️" },
+  96: { description: "Temporale con grandine", icon: "⛈️" },
+  99: { description: "Temporale forte con grandine", icon: "⛈️" },
+};
+
+function describeCode(code: number, hour: number): { description: string; icon: string } {
+  const base = WEATHER_CODES[code] || { description: "Condizioni variabili", icon: "🌡️" };
+  const isNight = hour < 6 || hour >= 20;
+  if (isNight) {
+    if (code === 0) return { ...base, icon: "🌙" };
+    if (code === 1) return { ...base, icon: "🌙" };
+    if (code === 2) return { ...base, icon: "☁️" };
+  }
+  return base;
+}
+
+export async function getWeekWeather(
+  lat: number,
+  lon: number,
+  options?: { pastDays?: number; forecastDays?: number }
+): Promise<WeekWeatherForecast | null> {
+  const url = new URL("https://api.open-meteo.com/v1/forecast");
+  url.searchParams.set("latitude", lat.toString());
+  url.searchParams.set("longitude", lon.toString());
+  url.searchParams.set(
+    "hourly",
+    "temperature_2m,windspeed_10m,winddirection_10m,surface_pressure,weathercode"
+  );
+  url.searchParams.set("timezone", "auto");
+  url.searchParams.set("forecast_days", String(options?.forecastDays ?? 7));
+  if (options?.pastDays) {
+    url.searchParams.set("past_days", String(options.pastDays));
+  }
+
+  const res = await fetch(url.toString());
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const times: string[] = data?.hourly?.time || [];
+  if (times.length === 0) return null;
+
+  const timezone: string = data?.timezone || "UTC";
+  const temps: number[] = data.hourly.temperature_2m;
+  const winds: number[] = data.hourly.windspeed_10m;
+  const dirs: number[] = data.hourly.winddirection_10m;
+  const pressures: number[] = data.hourly.surface_pressure;
+  const codes: number[] = data.hourly.weathercode;
+
+  const byDate: Record<string, HourSlot[]> = {};
+
+  for (let i = 0; i < times.length; i++) {
+    const [date, time] = times[i].split("T");
+    const hour = parseInt(time.split(":")[0], 10);
+    if (hour % 2 !== 0) continue; // teniamo solo ogni 2 ore: 00, 02, 04 ... 22
+
+    const { description, icon } = describeCode(codes[i], hour);
+    if (!byDate[date]) byDate[date] = [];
+    byDate[date].push({
+      time,
+      tempC: Math.round(temps[i]),
+      windSpeed: Math.round(winds[i]),
+      windDirection: Math.round(dirs[i]),
+      pressure: Math.round(pressures[i]),
+      weatherCode: codes[i],
+      description,
+      icon,
+    });
+  }
+
+  const days: DayWeather[] = Object.entries(byDate).map(([date, slots]) => ({
+    date,
+    slots: slots.sort((a, b) => a.time.localeCompare(b.time)),
+  }));
+
+  return { days, timezone };
+}
+
+export function windDirectionLabel(degrees: number): string {
+  const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
+  return dirs[Math.round(degrees / 45) % 8];
+}
+FILE_EOF
+
+cat > app/api/meteo/route.ts << 'FILE_EOF'
+import { NextRequest, NextResponse } from "next/server";
+import { getWeekWeather } from "@/lib/weather";
+
+const MAX_PAST_DAYS = 92; // limite dei dati storici "recenti" di Open-Meteo
+const MAX_FORECAST_DAYS = 16;
+
+function diffInDays(dateStr: string): number {
+  const target = new Date(dateStr + "T00:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / 86400000);
+}
+
+export async function GET(req: NextRequest) {
+  const lat = parseFloat(req.nextUrl.searchParams.get("lat") || "");
+  const lon = parseFloat(req.nextUrl.searchParams.get("lon") || "");
+  const date = req.nextUrl.searchParams.get("date"); // YYYY-MM-DD, opzionale
+
+  if (isNaN(lat) || isNaN(lon)) {
+    return NextResponse.json({ ok: false, error: "Coordinate mancanti o non valide." }, { status: 400 });
+  }
+
+  // Nessuna data richiesta: comportamento invariato, meteo di oggi + prossimi giorni
+  // (usato dalla pagina Meteo generale dell'app).
+  if (!date) {
+    const forecast = await getWeekWeather(lat, lon);
+    if (!forecast) {
+      return NextResponse.json({ ok: false, error: "Meteo non disponibile per questa località." });
+    }
+    return NextResponse.json({ ok: true, ...forecast });
+  }
+
+  const diff = diffInDays(date);
+
+  if (diff < -MAX_PAST_DAYS || diff > MAX_FORECAST_DAYS) {
+    return NextResponse.json({
+      ok: false,
+      error: "Meteo non disponibile per questa data (solo ultimi 3 mesi o prossimi 16 giorni).",
+    });
+  }
+
+  const pastDays = diff < 0 ? Math.min(MAX_PAST_DAYS, -diff) : 0;
+  const forecastDays = diff >= 0 ? Math.min(MAX_FORECAST_DAYS, diff + 1) : 1;
+
+  const forecast = await getWeekWeather(lat, lon, { pastDays, forecastDays });
+  if (!forecast) {
+    return NextResponse.json({ ok: false, error: "Meteo non disponibile per questa località." });
+  }
+
+  const matchedDay = forecast.days.find((d) => d.date === date);
+  if (!matchedDay) {
+    return NextResponse.json({ ok: false, error: "Meteo non disponibile per questa data." });
+  }
+
+  return NextResponse.json({ ok: true, days: [matchedDay], timezone: forecast.timezone });
+}
+FILE_EOF
+
+cat > lib/reverse-geocode.ts << 'FILE_EOF'
+export interface ReverseGeocodeResult {
+  name: string;
+}
+
+// Nominatim (OpenStreetMap) non richiede chiave API, ma richiede uno User-Agent
+// identificativo per rispettare la loro policy d'uso.
+export async function reverseGeocode(lat: number, lon: number): Promise<ReverseGeocodeResult> {
+  try {
+    const url = new URL("https://nominatim.openstreetmap.org/reverse");
+    url.searchParams.set("lat", lat.toString());
+    url.searchParams.set("lon", lon.toString());
+    url.searchParams.set("format", "json");
+    url.searchParams.set("accept-language", "it");
+    url.searchParams.set("zoom", "14"); // livello città/paese, non via esatta
+
+    const res = await fetch(url.toString(), {
+      headers: { "User-Agent": "LibriDiPescaApp/1.0 (enricoavagliano.com)" },
+    });
+    if (!res.ok) return { name: "Posizione attuale" };
+
+    const data = await res.json();
+    const addr = data?.address || {};
+    const place =
+      addr.village || addr.town || addr.city || addr.hamlet || addr.suburb || addr.county;
+
+    return { name: place ? `${place} (posizione attuale)` : "Posizione attuale" };
+  } catch {
+    return { name: "Posizione attuale" };
+  }
+}
+FILE_EOF
+
+cat > app/api/reverse-geocode/route.ts << 'FILE_EOF'
+import { NextRequest, NextResponse } from "next/server";
+import { reverseGeocode } from "@/lib/reverse-geocode";
+
+export async function GET(req: NextRequest) {
+  const lat = parseFloat(req.nextUrl.searchParams.get("lat") || "");
+  const lon = parseFloat(req.nextUrl.searchParams.get("lon") || "");
+
+  if (isNaN(lat) || isNaN(lon)) {
+    return NextResponse.json({ ok: false, error: "Coordinate mancanti o non valide." }, { status: 400 });
+  }
+
+  const result = await reverseGeocode(lat, lon);
+  return NextResponse.json({ ok: true, ...result });
+}
+FILE_EOF
+
+cat > components/DiarioForm.tsx << 'FILE_EOF'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -633,3 +872,6 @@ export default function DiarioForm({
     </div>
   );
 }
+FILE_EOF
+
+echo "Fatto: meteo ora legato alla data della battuta + pulsante posizione GPS aggiunto."
