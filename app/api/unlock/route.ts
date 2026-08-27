@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findBookByCode } from "@/lib/books";
 import { tryActivate } from "@/lib/activations";
+import { subscribeToBrevo, type BookKey } from "@/lib/brevo";
+
+function toBrevoBook(bookId: string): BookKey | null {
+  if (bookId === "feeder") return "feeder";
+  if (bookId === "mare-e-foce") return "marefoce";
+  return null; // "senso-acqua": nessuna lista Brevo ancora, si salta
+}
 
 export async function POST(req: NextRequest) {
   const { code, deviceId } = await req.json();
@@ -37,6 +44,17 @@ export async function POST(req: NextRequest) {
     sameSite: "lax",
   });
 
+  // Collega l'email già data al gate d'ingresso alla lista Brevo di
+  // questo libro specifico (best-effort: se fallisce non blocca lo sblocco).
+  const visitorEmail = req.cookies.get("visitor_email")?.value;
+  const brevoBook = toBrevoBook(book.id);
+  if (visitorEmail && brevoBook) {
+    try {
+      await subscribeToBrevo(visitorEmail, brevoBook);
+    } catch (err) {
+      console.error("Errore invio a Brevo dopo sblocco:", err);
+    }
+  }
+
   return res;
 }
-
