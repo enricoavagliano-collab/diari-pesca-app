@@ -47,7 +47,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Meteo non disponibile per questa località." });
   }
 
-  const matchedDay = forecast.days.find((d) => d.date === date);
+  const matchedDay =
+    forecast.days.find((d) => d.date === date) ||
+    // Se per qualsiasi motivo la data esatta non è tra quelle restituite
+    // (es. limite dei dati storici), prendo il giorno disponibile più vicino
+    // invece di fallire in silenzio.
+    forecast.days.reduce<{ date: string; slots: typeof forecast.days[number]["slots"] } | null>((closest, d) => {
+      const dDiff = Math.abs(diffInDays(d.date) - diff);
+      const closestDiff = closest ? Math.abs(diffInDays(closest.date) - diff) : Infinity;
+      return dDiff < closestDiff ? d : closest;
+    }, null);
+
   if (!matchedDay) {
     return NextResponse.json({ ok: false, error: "Meteo non disponibile per questa data." });
   }
