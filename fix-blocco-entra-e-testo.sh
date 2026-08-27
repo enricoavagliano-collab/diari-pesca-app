@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Fix: blocco dopo invio email + testo checkbox ==="
+
+cat > app/entra/page.tsx << 'EOF'
 "use client";
 
 import { Suspense, useState } from "react";
@@ -105,3 +111,12 @@ export default function EntraPage() {
     </Suspense>
   );
 }
+EOF
+
+echo "=== File corretto: app/entra/page.tsx ==="
+echo ""
+echo "Ricorda: bash fix-blocco-entra-e-testo.sh, poi:"
+echo "git add -A && git commit -m 'fix blocco dopo invio email + testo checkbox' && git push"
+echo ""
+echo "NOTA: se avevi già eseguito fix-testo-consenso-entra.sh in precedenza,"
+echo "nessun problema: questo script sovrascrive comunque tutto correttamente."
