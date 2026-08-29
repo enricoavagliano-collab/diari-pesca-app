@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Rinomino Inglese in Porto/Inglese e aggiungo la lenza Bolognese ==="
+
+cat > lib/lenze-official.ts << 'LENZEEOF'
 export type LenzaCategory = "mare" | "feeder";
 
 export type Tecnica = "trattenuta" | "passata" | "inglese" | "scogliera";
@@ -241,3 +247,14 @@ export const ASSETTO_FIELDS_FEEDER = [
   { key: "pastura", label: "Pastura" },
 ];
 
+LENZEEOF
+
+echo "=== File aggiornato: lib/lenze-official.ts ==="
+echo ""
+echo "Novita':"
+echo "  - Sezione rinominata da \"Inglese\" a \"Porto / Inglese\""
+echo "  - Aggiunta la variante \"Bolognese\" con due lenze:"
+echo "    Bigattino ed Esche alternative"
+echo ""
+echo "Ricorda: bash porto-inglese-bolognese.sh, poi:"
+echo "git add -A && git commit -m 'rinomina sezione in Porto/Inglese, aggiunge lenza Bolognese' && git push"
