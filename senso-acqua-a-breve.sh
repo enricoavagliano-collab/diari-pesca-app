@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Aggiungo (a breve online) alla dicitura Il senso dell'acqua ==="
+
+cat > app/lenze/LenzeClient.tsx << 'LENZECLIENTEOF'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -446,3 +452,13 @@ export default function LenzeClient({
   );
 }
 
+LENZECLIENTEOF
+
+echo "=== File aggiornato: app/lenze/LenzeClient.tsx ==="
+echo ""
+echo "Tutte le menzioni de 'Il senso dell'acqua' relative ai disegni"
+echo "esclusivi ora specificano '(a breve online)', per non far pensare"
+echo "che il libro sia gia' acquistabile."
+echo ""
+echo "Ricorda: bash senso-acqua-a-breve.sh, poi:"
+echo "git add -A && git commit -m 'aggiunge (a breve online) alle menzioni de Il senso dellacqua' && git push"
