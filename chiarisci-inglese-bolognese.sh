@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Chiarisco le etichette: Inglese vs Bolognese ==="
+
+cat > lib/lenze-official.ts << 'LENZEEOF'
 export type LenzaCategory = "mare" | "feeder";
 
 export type Tecnica = "trattenuta" | "passata" | "inglese" | "scogliera";
@@ -241,3 +247,15 @@ export const ASSETTO_FIELDS_FEEDER = [
   { key: "pastura", label: "Pastura" },
 ];
 
+LENZEEOF
+
+echo "=== File aggiornato: lib/lenze-official.ts ==="
+echo ""
+echo "Le due voci esistenti ora si chiamano:"
+echo "  Inglese - Bigattino"
+echo "  Inglese - Esche alternative"
+echo "(prima erano solo \"Bigattino\" e \"Esche alternative\", ambigue"
+echo "ora che esistono anche le due voci Bolognese)"
+echo ""
+echo "Ricorda: bash chiarisci-inglese-bolognese.sh, poi:"
+echo "git add -A && git commit -m 'chiarisce etichette inglese vs bolognese' && git push"
