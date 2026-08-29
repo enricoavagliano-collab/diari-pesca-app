@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Correggo la priorita' nel reverse geocoding (citta' invece di frazioni) ==="
+
+cat > lib/reverse-geocode.ts << 'EOF'
 export interface ReverseGeocodeResult {
   name: string;
 }
@@ -31,3 +37,9 @@ export async function reverseGeocode(lat: number, lon: number): Promise<ReverseG
     return { name: "Posizione attuale" };
   }
 }
+EOF
+
+echo "=== File corretto: lib/reverse-geocode.ts ==="
+echo ""
+echo "Ricorda: bash fix-geocode-priorita-citta.sh, poi:"
+echo "git add -A && git commit -m 'fix priorita reverse geocode: citta invece di frazioni' && git push"
