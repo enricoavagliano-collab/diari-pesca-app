@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Torno a mostrare solo il comune (affidabile) ==="
+
+cat > lib/reverse-geocode.ts << 'EOF'
 export interface ReverseGeocodeResult {
   name: string;
 }
@@ -31,3 +37,9 @@ export async function reverseGeocode(lat: number, lon: number): Promise<ReverseG
     return { name: "Posizione attuale" };
   }
 }
+EOF
+
+echo "=== File aggiornato: lib/reverse-geocode.ts ==="
+echo ""
+echo "Ricorda: bash solo-comune-affidabile.sh, poi:"
+echo "git add -A && git commit -m 'reverse geocode: solo comune, frazioni inaffidabili su OSM' && git push"
