@@ -78,6 +78,8 @@ export default function MeteoPage() {
   const [weekDays, setWeekDays] = useState<DayWeather[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
+  const [locatingGps, setLocatingGps] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
 
   useEffect(() => {
     setSaved(loadSaved());
@@ -121,6 +123,42 @@ export default function MeteoPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const useCurrentPosition = useCallback(() => {
+    if (!navigator.geolocation) {
+      setGpsError("Il dispositivo non supporta la geolocalizzazione.");
+      return;
+    }
+    setLocatingGps(true);
+    setGpsError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        fetch(`/api/reverse-geocode?lat=${latitude}&lon=${longitude}`)
+          .then((r) => r.json())
+          .then((d) => {
+            const name = d.ok ? d.name : "Posizione attuale";
+            loadLocationData({
+              id: 0,
+              name,
+              latitude,
+              longitude,
+              country: "",
+              timezone: "",
+            });
+          })
+          .finally(() => setLocatingGps(false));
+      },
+      (err) => {
+        setLocatingGps(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setGpsError("Permesso di posizione negato. Abilitalo nelle impostazioni del browser/telefono.");
+        } else {
+          setGpsError("Non sono riuscito a rilevare la posizione.");
+        }
+      }
+    );
+  }, [loadLocationData]);
+
   const todayWeather = weekDays?.find((d) => d.date === selectedDate) || null;
 
   return (
@@ -132,6 +170,15 @@ export default function MeteoPage() {
         <h1 className="text-xl font-medium mt-2 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
           Meteo
         </h1>
+
+        <button
+          onClick={useCurrentPosition}
+          disabled={locatingGps}
+          className="w-full flex items-center justify-center gap-2 bg-[#2CA6A4] rounded-xl px-3.5 py-2.5 mb-3 text-sm font-medium disabled:opacity-50"
+        >
+          📍 {locatingGps ? "Rilevo la posizione…" : "Usa la mia posizione attuale"}
+        </button>
+        {gpsError && <p className="text-[12px] text-[#FF9A3C] mb-3">{gpsError}</p>}
 
         <div className="flex items-center gap-2 bg-[#124E5A] border border-white/10 rounded-xl px-3.5 py-2.5 mb-3">
           <span>🔍</span>
