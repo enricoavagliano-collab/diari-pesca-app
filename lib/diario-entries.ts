@@ -9,6 +9,9 @@ export interface CatchEntry {
   time: string; // HH:mm
   foto?: string; // immagine compressa, salvata come data URL
   nota?: string;
+  lat?: number;
+  lon?: number;
+  locationName?: string;
 }
 
 export interface MeteoSnapshot {
