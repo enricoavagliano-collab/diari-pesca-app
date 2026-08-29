@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Mostro frazione + comune insieme (es. 'Campolimpido, Tivoli') ==="
+
+cat > lib/reverse-geocode.ts << 'EOF'
 export interface ReverseGeocodeResult {
   name: string;
 }
@@ -39,3 +45,9 @@ export async function reverseGeocode(lat: number, lon: number): Promise<ReverseG
     return { name: "Posizione attuale" };
   }
 }
+EOF
+
+echo "=== File aggiornato: lib/reverse-geocode.ts ==="
+echo ""
+echo "Ricorda: bash frazione-piu-comune.sh, poi:"
+echo "git add -A && git commit -m 'mostra frazione e comune insieme nel reverse geocoding' && git push"
