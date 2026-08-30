@@ -230,6 +230,7 @@ export const LENZA_FIELDS_MARE = [
   { key: "galleggiante", label: "Galleggiante" },
   { key: "piombatura", label: "Piombatura" },
   { key: "amo", label: "Amo" },
+  { key: "nota", label: "Note" },
 ];
 
 export const ASSETTO_FIELDS_FEEDER = [
@@ -239,5 +240,6 @@ export const ASSETTO_FIELDS_FEEDER = [
   { key: "amo", label: "Amo" },
   { key: "esche", label: "Esche" },
   { key: "pastura", label: "Pastura" },
+  { key: "nota", label: "Note" },
 ];
 
