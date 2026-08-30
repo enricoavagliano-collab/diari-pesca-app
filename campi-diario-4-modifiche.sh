@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Applico le 4 modifiche ai campi del diario ==="
+
+cat > lib/diario-templates.ts << 'TEMPLATESEOF'
 import { BookId } from "./books";
 
 export type FieldType = "text" | "date" | "time" | "textarea" | "number";
@@ -105,3 +111,20 @@ export const CONDIZIONI_TAGS: Record<"feeder" | "mare-e-foce", string[]> = {
   ],
 };
 
+TEMPLATESEOF
+
+echo "=== File aggiornato: lib/diario-templates.ts ==="
+echo ""
+echo "Modifiche applicate:"
+echo "  1. Mare/Foce: 'Vento' -> 'Vento (km/h)'"
+echo "  2. Mare/Foce: 'Amo' -> 'Amo (nr)' (ora coerente col Feeder)"
+echo "  3. Mare/Foce: campo unico 'Orario' sdoppiato in 'Orario inizio' e 'Orario fine'"
+echo "  4. Feeder: aggiunto tag condizione 'Acqua sporca' accanto ad 'Acqua limpida'"
+echo ""
+echo "Nota: le voci diario gia' salvate in precedenza con il vecchio campo"
+echo "'Orario' restano intatte nel database, semplicemente non compariranno"
+echo "piu' come campo modificabile nel nuovo form (i nuovi inserimenti"
+echo "useranno i due campi separati)."
+echo ""
+echo "Ricorda: bash campi-diario-4-modifiche.sh, poi:"
+echo "git add -A && git commit -m 'aggiorna campi diario: vento km/h, amo nr, orario da-a, acqua sporca feeder' && git push"
