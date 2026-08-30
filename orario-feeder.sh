@@ -1,3 +1,9 @@
+#!/bin/bash
+set -e
+
+echo "=== Aggiungo Orario inizio/fine anche al diario Feeder ==="
+
+cat > lib/diario-templates.ts << 'TEMPLATESEOF'
 import { BookId } from "./books";
 
 export type FieldType = "text" | "date" | "time" | "textarea" | "number";
@@ -107,3 +113,13 @@ export const CONDIZIONI_TAGS: Record<"feeder" | "mare-e-foce", string[]> = {
   ],
 };
 
+TEMPLATESEOF
+
+echo "=== File aggiornato: lib/diario-templates.ts ==="
+echo ""
+echo "Aggiunto 'Orario inizio' e 'Orario fine' nella sezione Sessione del"
+echo "diario Feeder, subito dopo Luogo - stessa posizione gia' usata in"
+echo "Mare/Foce. Il campo 'Durata' resta invariato, e' un dato diverso."
+echo ""
+echo "Ricorda: bash orario-feeder.sh, poi:"
+echo "git add -A && git commit -m 'aggiunge orario inizio-fine al diario feeder' && git push"
