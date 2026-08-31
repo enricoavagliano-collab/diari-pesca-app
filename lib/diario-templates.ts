@@ -1,12 +1,13 @@
 import { BookId } from "./books";
 
-export type FieldType = "text" | "date" | "time" | "textarea" | "number";
+export type FieldType = "text" | "date" | "time" | "textarea" | "number" | "select";
 
 export interface DiarioField {
   key: string;
   label: string;
   type: FieldType;
   placeholder?: string;
+  options?: string[]; // usato solo quando type === "select"
 }
 
 export interface DiarioSection {
@@ -22,10 +23,14 @@ export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">,
       title: "Sessione",
       fields: [
         { key: "data", label: "Data", type: "date" },
-        { key: "luogo", label: "Luogo", type: "text" },
+        {
+          key: "ambiente",
+          label: "Ambiente",
+          type: "select",
+          options: ["Fiume", "Lago", "Canale", "Laghetto / Pesca sportiva", "Diga"],
+        },
         { key: "orario_inizio", label: "Orario inizio", type: "time" },
         { key: "orario_fine", label: "Orario fine", type: "time" },
-        { key: "durata", label: "Durata", type: "text", placeholder: "es. 3h" },
         { key: "spot", label: "Spot", type: "text" },
       ],
     },
@@ -49,7 +54,12 @@ export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">,
     {
       title: "Assetto pescante",
       fields: [
-        { key: "canna", label: "Canna (mt)", type: "text" },
+        {
+          key: "canna",
+          label: "Canna (ft)",
+          type: "select",
+          options: ["10 ft", "11 ft", "12 ft", "13 ft", "14 ft"],
+        },
         { key: "mulinello", label: "Mulinello", type: "text" },
         { key: "lenza_madre", label: "Lenza madre (mm)", type: "text" },
         { key: "terminale", label: "Terminale (mm)", type: "text" },

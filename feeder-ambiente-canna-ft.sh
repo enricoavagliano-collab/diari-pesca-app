@@ -1,3 +1,131 @@
+#!/bin/bash
+set -e
+
+echo "=== Feeder: Ambiente, Canna in ft, rimossa Durata + supporto tendine ==="
+
+cat > lib/diario-templates.ts << 'TEMPLATESEOF'
+import { BookId } from "./books";
+
+export type FieldType = "text" | "date" | "time" | "textarea" | "number" | "select";
+
+export interface DiarioField {
+  key: string;
+  label: string;
+  type: FieldType;
+  placeholder?: string;
+  options?: string[]; // usato solo quando type === "select"
+}
+
+export interface DiarioSection {
+  title: string;
+  fields: DiarioField[];
+}
+
+// "Dati sessione": i campi specifici del libro (Feeder vs Mare e Foce), raggruppati
+// in sotto-sezioni solo per leggibilità del form — restano nella stessa scheda.
+export const DIARIO_TEMPLATES: Record<Extract<BookId, "feeder" | "mare-e-foce">, DiarioSection[]> = {
+  feeder: [
+    {
+      title: "Sessione",
+      fields: [
+        { key: "data", label: "Data", type: "date" },
+        {
+          key: "ambiente",
+          label: "Ambiente",
+          type: "select",
+          options: ["Fiume", "Lago", "Canale", "Laghetto / Pesca sportiva", "Diga"],
+        },
+        { key: "orario_inizio", label: "Orario inizio", type: "time" },
+        { key: "orario_fine", label: "Orario fine", type: "time" },
+        { key: "spot", label: "Spot", type: "text" },
+      ],
+    },
+    {
+      title: "Pasturatori",
+      fields: [
+        { key: "cage", label: "Cage (gr)", type: "number" },
+        { key: "block_end", label: "Block End (gr)", type: "number" },
+        { key: "pellet", label: "Pellet (gr)", type: "number" },
+        { key: "method", label: "Method (gr)", type: "number" },
+      ],
+    },
+    {
+      title: "Esche e pasture",
+      fields: [
+        { key: "esche_dure", label: "Esche dure", type: "text" },
+        { key: "esche_naturali", label: "Esche naturali", type: "text" },
+        { key: "pastura", label: "Pastura", type: "text" },
+      ],
+    },
+    {
+      title: "Assetto pescante",
+      fields: [
+        {
+          key: "canna",
+          label: "Canna (ft)",
+          type: "select",
+          options: ["10 ft", "11 ft", "12 ft", "13 ft", "14 ft"],
+        },
+        { key: "mulinello", label: "Mulinello", type: "text" },
+        { key: "lenza_madre", label: "Lenza madre (mm)", type: "text" },
+        { key: "terminale", label: "Terminale (mm)", type: "text" },
+        { key: "amo", label: "Amo (nr)", type: "text" },
+      ],
+    },
+    {
+      title: "Analisi",
+      fields: [
+        { key: "cosa_ha_funzionato", label: "Cosa ha funzionato", type: "textarea" },
+        { key: "cosa_migliorare", label: "Cosa migliorare", type: "textarea" },
+      ],
+    },
+  ],
+
+  "mare-e-foce": [
+    {
+      title: "Sessione di pesca",
+      fields: [
+        { key: "data", label: "Data", type: "date" },
+        { key: "luogo", label: "Luogo", type: "text" },
+        { key: "orario_inizio", label: "Orario inizio", type: "time" },
+        { key: "orario_fine", label: "Orario fine", type: "time" },
+        { key: "vento", label: "Vento (km/h)", type: "text" },
+        { key: "profondita", label: "Profondità", type: "text", placeholder: "mt" },
+        { key: "spot", label: "Spot", type: "text" },
+      ],
+    },
+    {
+      title: "Assetto tecnico",
+      fields: [
+        { key: "canna", label: "Canna (mt)", type: "text" },
+        { key: "mulinello", label: "Mulinello", type: "text" },
+        { key: "amo", label: "Amo (nr)", type: "text" },
+        { key: "galleggiante", label: "Galleggiante (gr)", type: "text" },
+        { key: "filo_madre", label: "Filo madre (mm)", type: "text" },
+        { key: "terminale", label: "Terminale (mm)", type: "text" },
+      ],
+    },
+  ],
+};
+
+// Condizioni rapide selezionabili nella scheda Meteo del diario (tag on/off) — specifiche per libro
+export const CONDIZIONI_TAGS: Record<"feeder" | "mare-e-foce", string[]> = {
+  feeder: ["Corrente forte", "Corrente media", "Corrente lenta", "Acqua limpida", "Acqua sporca", "Poco vento", "Vento forte"],
+  "mare-e-foce": [
+    "Mare calmo",
+    "Mare mosso",
+    "Corrente forte",
+    "Corrente media",
+    "Corrente lenta",
+    "Acqua limpida",
+    "Poco vento",
+    "Vento forte",
+  ],
+};
+
+TEMPLATESEOF
+
+cat > components/DiarioForm.tsx << 'DIARIOFORMEOF'
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -731,3 +859,19 @@ export default function DiarioForm({
     </div>
   );
 }
+DIARIOFORMEOF
+
+echo "=== File aggiornati: ==="
+echo "  lib/diario-templates.ts"
+echo "  components/DiarioForm.tsx"
+echo ""
+echo "Modifiche:"
+echo "  - Feeder: rimosso il campo 'Durata'"
+echo "  - Feeder: 'Luogo' sostituito da 'Ambiente' (tendina: Fiume, Lago,"
+echo "    Canale, Laghetto / Pesca sportiva, Diga)"
+echo "  - Feeder: 'Canna (mt)' diventa 'Canna (ft)' (tendina: 10-14 ft)"
+echo "  - Aggiunto supporto generale ai campi a tendina (type: 'select'),"
+echo "    riusabile per altri campi in futuro, sia Feeder che Mare/Foce"
+echo ""
+echo "Ricorda: bash feeder-ambiente-canna-ft.sh, poi:"
+echo "git add -A && git commit -m 'feeder: ambiente e canna ft a tendina, rimossa durata' && git push"
