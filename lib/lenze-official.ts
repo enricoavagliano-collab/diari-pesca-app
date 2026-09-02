@@ -1,3 +1,5 @@
+import { DIAMETRI_MM, AMI_NR } from "./diario-templates";
+
 export type LenzaCategory = "mare" | "feeder";
 
 export type Tecnica = "trattenuta" | "passata" | "inglese" | "scogliera";
@@ -224,22 +226,32 @@ export const OFFICIAL_ASSETTI: AssettoSpec[] = [
 ];
 
 // Campi del form per le lenze personali dell'utente (semplificato rispetto alla libreria ufficiale)
+// Galleggianti: unione delle misure Bolognese + Inglese usate nel diario,
+// dato che qui non c'e' un campo "Tecnica" a monte che le distingua.
+const GALLEGGIANTI_GR = [
+  "0.5 gr", "0.75 gr", "1 gr", "1.5 gr", "2 gr", "2.5 gr", "3 gr", "4 gr",
+  "5 gr", "6 gr", "7 gr", "8 gr", "10 gr", "12 gr",
+  "2+1 gr", "3+1 gr", "4+1 gr",
+];
+
+const PASTURATORI = ["Cage", "Block End", "Method", "Pellet feeder", "In-line"];
+
 export const LENZA_FIELDS_MARE = [
-  { key: "madre", label: "Madre" },
-  { key: "finale", label: "Finale" },
-  { key: "galleggiante", label: "Galleggiante" },
-  { key: "piombatura", label: "Piombatura" },
-  { key: "amo", label: "Amo" },
-  { key: "nota", label: "Note" },
+  { key: "madre", label: "Madre (mm)", type: "select" as const, options: DIAMETRI_MM },
+  { key: "finale", label: "Finale (mm)", type: "select" as const, options: DIAMETRI_MM },
+  { key: "galleggiante", label: "Galleggiante (gr)", type: "select" as const, options: GALLEGGIANTI_GR },
+  { key: "piombatura", label: "Piombatura", type: "text" as const },
+  { key: "amo", label: "Amo (nr)", type: "select" as const, options: AMI_NR },
+  { key: "nota", label: "Note", type: "text" as const },
 ];
 
 export const ASSETTO_FIELDS_FEEDER = [
-  { key: "pasturatore", label: "Tipo di pasturatore" },
-  { key: "terminale", label: "Tipo di terminale" },
-  { key: "lenzaMadre", label: "Lenza madre" },
-  { key: "amo", label: "Amo" },
-  { key: "esche", label: "Esche" },
-  { key: "pastura", label: "Pastura" },
-  { key: "nota", label: "Note" },
+  { key: "pasturatore", label: "Tipo di pasturatore", type: "select" as const, options: PASTURATORI },
+  { key: "terminale", label: "Terminale (mm)", type: "select" as const, options: DIAMETRI_MM },
+  { key: "lenzaMadre", label: "Lenza madre (mm)", type: "select" as const, options: DIAMETRI_MM },
+  { key: "amo", label: "Amo (nr)", type: "select" as const, options: AMI_NR },
+  { key: "esche", label: "Esche", type: "text" as const },
+  { key: "pastura", label: "Pastura", type: "text" as const },
+  { key: "nota", label: "Note", type: "text" as const },
 ];
 
