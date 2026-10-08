@@ -9,7 +9,7 @@ import AndroidInstallBanner from "@/components/AndroidInstallBanner";
 const COVERS: Record<string, string> = {
   feeder: "/covers/feeder.jpg",
   "mare-e-foce": "/covers/mare-e-foce.jpg",
-  "senso-acqua": "/covers/senso-acqua.jpg",
+  "senso-acqua": "/covers/pesca-bolognese-inglese.jpg",
 };
 
 const STRUMENTI = [
