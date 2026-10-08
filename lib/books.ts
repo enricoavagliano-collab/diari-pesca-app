@@ -35,7 +35,7 @@ export const BOOKS: Record<BookId, Book> = {
   },
   "senso-acqua": {
     id: "senso-acqua",
-    name: "Il senso dell'acqua",
+    name: "Pesca a bolognese e all'inglese",
     unlockCode: process.env.UNLOCK_CODE_SENSOACQUA || "SENSOACQUA-2026-DEMO",
     maxActivations: MAX_ACTIVATIONS,
   },

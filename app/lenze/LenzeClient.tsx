@@ -182,11 +182,11 @@ export default function LenzeClient({
           <div className="bg-[#124E5A] border border-white/10 rounded-xl p-6 text-center mt-4">
             <div className="text-3xl mb-3">🔒</div>
             <h2 className="font-medium text-[15px] mb-1.5">
-              {category === "mare" ? "Sblocca con Mare e Foce o Il senso dell'acqua (a breve online)" : "Sblocca con Diario Feeder"}
+              {category === "mare" ? "Sblocca con Mare e Foce o Pesca a bolognese e all'inglese (a breve online)" : "Sblocca con Diario Feeder"}
             </h2>
             <p className="text-sm text-[#8FA8B2] leading-relaxed">
               Questa sezione fa parte dei contenuti del diario{" "}
-              {category === "mare" ? "Mare e Foce (o de Il senso dell'acqua, a breve online)" : "Feeder"} — inquadra il QR nella prima
+              {category === "mare" ? "Mare e Foce (o Pesca a bolognese e all'inglese, a breve online)" : "Feeder"} — inquadra il QR nella prima
               pagina della tua copia per sbloccarla.
             </p>
           </div>
@@ -294,7 +294,7 @@ export default function LenzeClient({
                   <div className="mt-3 pt-3 border-t border-white/10">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10.5px] text-[#FF9A3C] font-medium">
-                        ✎ Disegno esclusivo — Il senso dell&apos;acqua (a breve online)
+                        ✎ Disegno esclusivo — Pesca a bolognese e all&apos;inglese (a breve online)
                       </span>
                     </div>
                     <div className="bg-[#0B1F2A] border border-dashed border-white/10 rounded-lg h-32 flex items-center justify-center text-[11px] text-[#8FA8B2]">
@@ -305,7 +305,7 @@ export default function LenzeClient({
                   <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2.5 bg-[#0B1F2A] rounded-lg p-2.5">
                     <span className="text-lg flex-shrink-0">🔒</span>
                     <p className="text-[11px] text-[#8FA8B2] leading-relaxed">
-                      Disegno del montaggio disponibile solo per chi ha Il senso dell&apos;acqua (a breve online).
+                      Disegno del montaggio disponibile solo per chi ha Pesca a bolognese e all&apos;inglese (a breve online).
                     </p>
                   </div>
                 )}
